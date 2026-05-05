@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9009505cb200a164a9e96c7d80661e4e, type: 3}
+  m_Name: EnhancePotion
+  m_EditorClassIdentifier: 
+  _itemType: 7
+  _weaponName: "\u30A8\u30F3\u30CF\u30F3\u30B9\u30DD\u30FC\u30B7\u30E7\u30F3"
+  _attackPower: 0
+  _defensePower: 0
+  _criticalRate: 0
+  _value: 7
+  _weaponImage: {fileID: 3730936093951808408, guid: 26dfc24714b9ac341b721dc2a1e4deb7, type: 3}
+  _rarity: 2
+  _jobType: 1
+  _detailText: "\u30A8\u30F3\u30CF\u30F3\u30B9\u30DD\u30FC\u30B7\u30E7\u30F3(\u30A8\u30D4\u30C3\u30AF)\n\u653B\u9632+30%"
+  _speedUpRate: 0
+  _moveSpeedChangeRate: 0
+  _isFlameCheck: 0
+  _isFreezeCheck: 0
+  _isParalyzeCheck: 0
+  _isPoisonCheck: 0
+  _attackUpRate: 0
+  _defenseUpRate: 0
+  _isAbsorptionCheck: 0
+  _isAutoHealCheck: 0
+  _spCostDown: 0
+  _overLimitHealth: 0
+  _overLimitSp: 0
+  _potionDefenseUpRate: 0.3
+  _potionAttackUpRate: 0.3

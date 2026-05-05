@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9009505cb200a164a9e96c7d80661e4e, type: 3}
+  m_Name: WindFang
+  m_EditorClassIdentifier: 
+  _itemType: 0
+  _weaponName: "\u30A6\u30A4\u30F3\u30C9\u30D5\u30A1\u30F3\u30B0"
+  _attackPower: 20
+  _defensePower: 0
+  _criticalRate: 0
+  _value: 16
+  _weaponImage: {fileID: 5383863820643989376, guid: 108f59e3076148640918fcb0fa3a0ef5, type: 3}
+  _rarity: 2
+  _jobType: 2
+  _detailText: "\u30A6\u30A4\u30F3\u30C9\u30D5\u30A1\u30F3\u30B0(\u30A8\u30D4\u30C3\u30AF)\n\u653B\u6483\u529B:20\n\u653B\u6483\u901F\u5EA6+40%"
+  _speedUpRate: 0.4

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9009505cb200a164a9e96c7d80661e4e, type: 3}
+  m_Name: LuminousGlove
+  m_EditorClassIdentifier: 
+  _itemType: 4
+  _weaponName: "\u30EB\u30DF\u30CA\u30B9\u30B0\u30ED\u30FC\u30D6"
+  _attackPower: 0
+  _defensePower: 7
+  _criticalRate: 0
+  _value: 5
+  _weaponImage: {fileID: 3729495332255597602, guid: d1b7730c3498f4b4ea6133d10ae79cfe, type: 3}
+  _rarity: 1
+  _jobType: 1
+  _detailText: "\u30EB\u30DF\u30CA\u30B9\u30B0\u30ED\u30FC\u30D6(\u30EC\u30A2)\n\u9632\u5FA1\u529B:7"
+  _speedUpRate: 0
+  _moveSpeedChangeRate: 0
+  _isFlameCheck: 0
+  _isFreezeCheck: 0
+  _isParalyzeCheck: 0
+  _isPoisonCheck: 0
+  _attackUpRate: 0
+  _defenseUpRate: 0
+  _isAbsorptionCheck: 0
+  _isAutoHealCheck: 0
+  _spCostDown: 0
+  _overLimitHealth: 0
+  _overLimitSp: 0
+  _potionDefenseUpRate: 0
+  _potionAttackUpRate: 0

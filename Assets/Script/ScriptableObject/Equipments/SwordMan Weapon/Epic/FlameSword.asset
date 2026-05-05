@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9009505cb200a164a9e96c7d80661e4e, type: 3}
+  m_Name: FlameSword
+  m_EditorClassIdentifier: 
+  _itemType: 0
+  _weaponName: "\u30D5\u30EC\u30A4\u30E0\u30BD\u30FC\u30C9"
+  _attackPower: 27
+  _defensePower: 0
+  _criticalRate: 0
+  _value: 15
+  _weaponImage: {fileID: 2109695407461303799, guid: 2ffd78c4134af93459162980fed985bf, type: 3}
+  _rarity: 2
+  _jobType: 2
+  _detailText: "\u30D5\u30EC\u30A4\u30E0\u30BD\u30FC\u30C9(\u30A8\u30D4\u30C3\u30AF)\n\u653B\u6483\u529B:27\n\u653B\u6483\u306B\u71C3\u713C\u4ED8\u4E0E(5\u79D2\u95932DMG/s\u3001\u653B\u6483\u529B-30%)"
+  _speedUpRate: 0
+  _moveSpeedChangeRate: 0
+  _isFlameCheck: 1
+  _isFreezeCheck: 0
+  _isParalyzeCheck: 0
+  _isPoisonCheck: 0

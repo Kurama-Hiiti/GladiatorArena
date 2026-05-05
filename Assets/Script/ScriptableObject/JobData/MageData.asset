@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d0aee48376b98a409737ce663f184e5, type: 3}
+  m_Name: MageData
+  m_EditorClassIdentifier: 
+  _jobName: Mage
+  _jobType: 3
+  _firstMoney: 20
+  _skillNameQ: "\u30A8\u30AF\u30B9\u30D7\u30ED\u30FC\u30B8\u30E7\u30F3"
+  _skillNameE: "\u30A2\u30A4\u30B9\u30B7\u30E7\u30C3\u30AF"
+  _skillNameR: "\u30A8\u30EC\u30AF\u30C8\u30ED\u30A8\u30C3\u30B8"
+  _skillNameF: "\u30DD\u30A4\u30BA\u30F3\u30D4\u30E9\u30FC"
+  _skillDetailQ: "\u81EA\u5206\u3092\u4E2D\u5FC3\u306B\u3057\u305F\u71C3\u713C\u52B9\u679C\u4ED8\u304D\u306E\u7206\u767A
+    \u6D88\u8CBBSP10"
+  _skillDetailE: "\u524D\u65B9\u306B\u6C37\u7D50\u52B9\u679C\u4ED8\u304D\u306E\u885D\u6483\u6CE2
+    \u6D88\u8CBBSP15"
+  _skillDetailR: "\u524D\u65B9\u3078\u98DB\u3093\u3067\u3044\u304F\u611F\u96FB\u52B9\u679C\u4ED8\u304D\u306E\u9B54\u6CD5
+    \u6D88\u8CBBSP10"
+  _skillDetailF: "\u81EA\u5206\u306E\u6B63\u9762\u306B\u6BD2\u52B9\u679C\u306E\u3042\u308B\u9B54\u6CD5\u3092\u5C55\u958B\u3059\u308B
+    \u6D88\u8CBB\uFF33\uFF3015"
+  _baseAttackPower: 5
+  _baseDefensePower: 5
+  _baseCriticalRate: 0.1
+  _skillDamageRateQ: 1.2
+  _skillDamageRateE: 1.5
+  _skillDamageRateR: 0.5
+  _skillDamageRateF: 1.3
+  _skillCostQ: 10
+  _skillCostE: 15
+  _skillCostR: 10
+  _skillCostF: 15
+  _startWeaponDatas:
+  - {fileID: 11400000, guid: 04704feb43e92ca48867a26dd28f1104, type: 2}
+  - {fileID: 11400000, guid: fc6f763814273c0478f8b38f0faa1a77, type: 2}
+  - {fileID: 11400000, guid: e13de507af781004abb5de006f606a85, type: 2}

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9009505cb200a164a9e96c7d80661e4e, type: 3}
+  m_Name: DiosRobe
+  m_EditorClassIdentifier: 
+  _itemType: 1
+  _weaponName: "\u30C7\u30A3\u30AA\u30B9\u30ED\u30FC\u30D6"
+  _attackPower: 0
+  _defensePower: 30
+  _criticalRate: 0
+  _value: 24
+  _weaponImage: {fileID: 7111054338770634778, guid: e9a009df822727f48bc25cf9c4e108e1, type: 3}
+  _rarity: 3
+  _jobType: 3
+  _detailText: "\u30C7\u30A3\u30AA\u30B9\u30ED\u30FC\u30D6(\u30EC\u30B8\u30A7\u30F3\u30C0\u30EA\u30FC)\n\u9632\u5FA1\u529B:30\n\u81EA\u52D5\u56DE\u5FA9(2\u79D2\u306B1HP)\u3001\u653B\u6483\u529B+5\uFF05\u3001\u79FB\u52D5\u901F\u5EA6+20\uFF05\u3001\u6D88\u8CBBSP-20\uFF05"
+  _speedUpRate: 0
+  _moveSpeedChangeRate: 0.2
+  _isFlameCheck: 0
+  _isFreezeCheck: 0
+  _isParalyzeCheck: 0
+  _isPoisonCheck: 0
+  _attackUpRate: 0.05
+  _defenseUpRate: 0
+  _isAbsorptionCheck: 0
+  _isAutoHealCheck: 1
+  _spCostDown: 0.2
+  _overLimitHealth: 0
+  _overLimitSp: 0
+  _potionDefenseUpRate: 0
+  _potionAttackUpRate: 0

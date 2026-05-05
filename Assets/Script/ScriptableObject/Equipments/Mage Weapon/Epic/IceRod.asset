@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9009505cb200a164a9e96c7d80661e4e, type: 3}
+  m_Name: IceRod
+  m_EditorClassIdentifier: 
+  _itemType: 0
+  _weaponName: "\u30A2\u30A4\u30B9\u30ED\u30C3\u30C9"
+  _attackPower: 24
+  _defensePower: 0
+  _criticalRate: 0
+  _value: 15
+  _weaponImage: {fileID: 6660257456750875335, guid: d816865a7f255e64990c39f3be0fb5a0, type: 3}
+  _rarity: 2
+  _jobType: 3
+  _detailText: "\u30A2\u30A4\u30B9\u30ED\u30C3\u30C9(\u30A8\u30D4\u30C3\u30AF)\n\u653B\u6483\u529B:24\n\u653B\u6483\u306B\u6C37\u7D50\u4ED8\u4E0E(\u78BA\u7387\u3067\u6575\u306E\u884C\u52D5\u901F\u5EA6-30\uFF05\u3001\u9632\u5FA1\u529B-50\uFF05)"
+  _speedUpRate: 0
+  _moveSpeedChangeRate: 0
+  _isFlameCheck: 0
+  _isFreezeCheck: 1
+  _isParalyzeCheck: 0
+  _isPoisonCheck: 0
+  _attackUpRate: 0
+  _defenseUpRate: 0
+  _isAbsorptionCheck: 0
+  _isAutoHealCheck: 0
+  _spCostDown: 0
+  _overLimitHealth: 0
+  _overLimitSp: 0
+  _potionDefenseUpRate: 0
+  _potionAttackUpRate: 0
