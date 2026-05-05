@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9009505cb200a164a9e96c7d80661e4e, type: 3}
+  m_Name: GoldBuckler
+  m_EditorClassIdentifier: 
+  _itemType: 2
+  _weaponName: "\u30B4\u30FC\u30EB\u30C9\u30D0\u30C3\u30AF\u30E9\u30FC"
+  _attackPower: 0
+  _defensePower: 9
+  _value: 7
+  _weaponImage: {fileID: 1336498351150973024, guid: 598f9be2962bfd243acb0bc6366025ac, type: 3}
+  _rarity: 0
+  _jobType: 2
+  _detailText: "\u30B4\u30FC\u30EB\u30C9\u30D0\u30C3\u30AF\u30E9\u30FC(\u30B3\u30E2\u30F3)\n\u9632\u5FA1\u529B:9"

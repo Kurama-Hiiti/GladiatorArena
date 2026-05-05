@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9009505cb200a164a9e96c7d80661e4e, type: 3}
+  m_Name: SoulEater
+  m_EditorClassIdentifier: 
+  _itemType: 0
+  _weaponName: "\u30BD\u30A6\u30EB\u30A4\u30FC\u30BF\u30FC"
+  _attackPower: 34
+  _defensePower: 0
+  _criticalRate: 0
+  _value: 18
+  _weaponImage: {fileID: 3452472723728717172, guid: 260b6212e23edfd46a8a4070e2664192, type: 3}
+  _rarity: 3
+  _jobType: 2
+  _detailText: "\u30BD\u30A6\u30EB\u30A4\u30FC\u30BF\u30FC(\u30EC\u30B8\u30A7\u30F3\u30C0\u30EA\u30FC)\n\u653B\u6483\u529B:34\n\u653B\u6483\u306B\u30C9\u30EC\u30A4\u30F3\u4ED8\u4E0E(\u30C0\u30E1\u30FC\u30B8\u306E20\uFF05\u56DE\u5FA9)"
+  _speedUpRate: 0
+  _moveSpeedChangeRate: 0
+  _isFlameCheck: 0
+  _isFreezeCheck: 0
+  _isParalyzeCheck: 0
+  _isPoisonCheck: 0
+  _attackUpRate: 0
+  _defenseUpRate: 0
+  _isAbsorptionCheck: 1
+  _isAutoHealCheck: 0
+  _spCostDown: 0

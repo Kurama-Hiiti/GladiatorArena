@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9009505cb200a164a9e96c7d80661e4e, type: 3}
+  m_Name: SacredArmor
+  m_EditorClassIdentifier: 
+  _itemType: 1
+  _weaponName: "\u30BB\u30A4\u30AF\u30EA\u30C3\u30C9\u30A2\u30FC\u30DE\u30FC"
+  _attackPower: 0
+  _defensePower: 30
+  _criticalRate: 0
+  _value: 20
+  _weaponImage: {fileID: 3239668780343850282, guid: b9e6ddf4bd47e2640af16be738547972, type: 3}
+  _rarity: 3
+  _jobType: 2
+  _detailText: "\u30BB\u30A4\u30AF\u30EA\u30C3\u30C9\u30A2\u30FC\u30DE\u30FC(\u30EC\u30B8\u30A7\u30F3\u30C0\u30EA\u30FC)\n\u9632\u5FA1\u529B:30\n\u81EA\u52D5\u56DE\u5FA9(2\u79D2\u306B1HP)\u3001\u653B\u6483\u306B\u30C9\u30EC\u30A4\u30F3\u4ED8\u4E0E(\u30C0\u30E1\u30FC\u30B8\u306E20\uFF05\u56DE\u5FA9)"
+  _speedUpRate: 0
+  _moveSpeedChangeRate: 0
+  _isFlameCheck: 0
+  _isFreezeCheck: 0
+  _isParalyzeCheck: 0
+  _isPoisonCheck: 0
+  _attackUpRate: 0
+  _defenseUpRate: 0
+  _isAbsorptionCheck: 1
+  _isAutoHealCheck: 1
+  _spCostDown: 0

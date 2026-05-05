@@ -1,0 +1,15 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+//SEÇÃñºëOê›íË
+public enum EnemySoundType
+{
+    hitSword,hitShield,hitMagic,hitThunder,hitPoison,
+}
+
+public class EnemySoundManager : MastarSoundManager<EnemySoundType>
+{
+
+}

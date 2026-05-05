@@ -2,9 +2,11 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
+
 # Recommended: add any editor/OS/tool-specific ignore rules from the Global/ templates as needed.
 # See: https://github.com/github/gitignore/tree/main/Global
 #
+
 .utmp/
 /[Ll]ibrary/
 /[Tt]emp/
@@ -104,3 +106,71 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+UserSettings/
+
+# OSごとの不要ファイル
+.DS_Store
+Thumbs.db
+
+# IDE関連
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.user
+*.unityproj
+*.suo
+*.tmp
+*.pidb
+*.booproj
+*.svd
+
+# --- ここから独自に追加した除外設定 ---
+/Assets/3DModel/
+/Assets/3DModel.meta
+
+/Assets/100BestEffectPack/
+/Assets/100BestEffectPack.meta
+
+/Assets/Animation/
+/Assets/Animation.meta
+
+/Assets/DownLoadAssets/
+/Assets/DownLoadAssets.meta
+
+/Assets/DownLoadTextFont/
+/Assets/DownLoadTextFont.meta
+
+/Assets/Prefab/
+/Assets/Prefab.meta
+
+/Assets/Sound/
+/Assets/Sound.meta
+
+/Assets/SU3DJPFont/
+/Assets/SU3DJPFont.meta
+
+/Assets/Plugins/
+/Assets/Plugins.meta
+
+/Assets/Sprite/
+/Assets/Sprite.meta
+
+/Assets/TextMesh Pro/
+/Assets/TextMesh Pro.meta
+
+/Recordings/
+
+/ReleaseBuild/
+
+/TestBuild/
+
+/UnityRoomBuild_GladiatorArena/
+
