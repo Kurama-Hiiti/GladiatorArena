@@ -9,12 +9,17 @@ using TMPro;
 
 public class ItemDetailChack : MonoBehaviour
 {
-    //ショップのグラフィックレイキャスター（アイテム操作用）
+    //アイテム一覧表示時のアイテムの詳細表示処理
+
+
+
+    //グラフィックレイキャスター（アイテム操作用）定義
     private GraphicRaycaster raycaster;
 
     //マウスポインターのデータ格納
     private PointerEventData pointerEventData;
 
+    //イベントシステム
     private EventSystem eventSystem;
 
     //クリックしたアイテム
@@ -65,11 +70,13 @@ public class ItemDetailChack : MonoBehaviour
             {
                 if (result.gameObject.CompareTag("Item"))
                 {
+                    //アイテム強調表示用のエフェクトを非表示
                     if (nowEffect != null)
                     {
                         nowEffect.enabled = false;
                     }
 
+                    //クリックしたアイテムを格納
                     catchItem = result.gameObject;
 
                     //クリックしたアイテムをハイライトする
@@ -77,6 +84,7 @@ public class ItemDetailChack : MonoBehaviour
 
                     nowEffect = effect;
 
+                    //アイテム強調表示
                     effect.enabled = true;
 
                     effect.SetVerticesDirty(); // 頂点情報の更新
@@ -90,6 +98,7 @@ public class ItemDetailChack : MonoBehaviour
                 }
                 else
                 {
+                    //条件外の場合はエフェクトを消し詳細文も空白にする
                     if (nowEffect != null)
                     {
                         nowEffect.enabled = false;
@@ -115,7 +124,7 @@ public class ItemDetailChack : MonoBehaviour
         //一度詳細テキストをクリアする
         itemDetailText.text = string.Empty;
 
-        //クリックしたアイテムのデータへアクセス
+        //データベースから現在選択しているアイテムの詳細文を読み取る
         for (int i = 0; i < itemDataBase.allItems.Count; i++)
         {
             if (itemDataBase.allItems[i].name == catchItem.name)

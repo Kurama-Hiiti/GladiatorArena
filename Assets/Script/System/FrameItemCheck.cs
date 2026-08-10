@@ -8,11 +8,13 @@ public class FrameItemCheck : MonoBehaviour
     [SerializeField]
     private List<Transform> item = new List<Transform>();
 
+    //フレーム内にアイテムがセットされているのかのブール値
     public bool isSet;
 
 
     private void Update()
     {
+        //初期アイテムのセット確認
         if (GameManager.instance.state == GameManager.GameState.CharactorSelect)
         {
             ItemSetCheck();
@@ -21,8 +23,10 @@ public class FrameItemCheck : MonoBehaviour
 
     private void ItemSetCheck()
     {
+        //アイテムリスト初期化
         item.Clear();
 
+        //フレームの子要素にあるアイテムをリストに格納
         if (0 < gameObject.transform.childCount)
         {
             item.Add(gameObject.transform.GetChild(0));
@@ -39,6 +43,7 @@ public class FrameItemCheck : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        //アイテムの格納処理
         if(collision.gameObject.CompareTag("Item"))
         {
             if (item.Count == 0)
@@ -52,6 +57,7 @@ public class FrameItemCheck : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
+        //アイテムの除外処理
         if (collision.gameObject.CompareTag("Item"))
         {
 
@@ -86,6 +92,7 @@ public class FrameItemCheck : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
+        //アイテムがフレーム内にある時の処理
         if (!isSet)
         {
             if (collision.gameObject.CompareTag("Item"))

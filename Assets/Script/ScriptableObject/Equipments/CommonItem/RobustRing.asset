@@ -35,3 +35,5 @@ MonoBehaviour:
   _spCostDown: 0
   _overLimitHealth: 50
   _overLimitSp: 0
+  _potionDefenseUpRate: 0
+  _potionAttackUpRate: 0

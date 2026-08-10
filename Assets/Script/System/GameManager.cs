@@ -19,22 +19,16 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private CinemachineVirtualCamera playerFollowCamera;
 
-
+    //ショップカメラ
     [SerializeField]
     private CinemachineVirtualCamera shopCamera;
 
+    //カメラの表示優先度
     private int inActiveCameraPriority = 10;
-
     private int activeCameraPriority = 11;
-
-    private bool changePriority;
 
     //選択されたプレイヤー
     public GameObject player;
-
-    private Vector3 playerEndPos;
-
-
     
 
 
@@ -79,7 +73,7 @@ public class GameManager : MonoBehaviour
     public bool isClick;
 
 
-    //プレイヤー追従カメラの角度(Value)を初期の90度へ戻す
+    //プレイヤー追従カメラの照準定義
     private CinemachinePOV playerFollowCameraPov;
 
 
@@ -108,18 +102,21 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //ウェーブ初期値定義
         waveNum = 1;
 
         //カメラの優先順位決定
         playerFollowCamera.Priority = inActiveCameraPriority;
         shopCamera.Priority = activeCameraPriority;
 
+        //プレイヤー追従カメラの照準初期化
         playerFollowCameraPov = playerFollowCamera.GetCinemachineComponent<CinemachinePOV>();
 
         //タイトルBGM再生
         BGMManager.instance.PlayBGM(BGM.title);
 
         // Cinemachineの入力取得処理をこの関数の戻り値で上書きする
+        //特定条件下でマウス入力による画面の向きを抑制する
         CinemachineCore.GetInputAxis = (axisName) => {
             if (Time.timeScale == 0f || state == GameState.Menu || state == GameState.GameOver || state == GameState.GameClear) return 0f; // メニュー中は入力を無視
             return Input.GetAxis(axisName); // 通常時はマウス入力を返す
@@ -130,6 +127,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //バトル時はマウスカーソル非表示
         if (state == GameState.Battle)
         {
             Cursor.visible = false;
@@ -143,12 +141,14 @@ public class GameManager : MonoBehaviour
     //バトルカメラへの遷移
     public void ChangeBattleCmera()
     {
+        //プレイヤーの位置取得
         if (playerFollowCamera.Follow == null)
         {
             playerFollowCamera.Follow = player.transform;
 
         }
 
+        //カメラの優先度変更
         playerFollowCamera.Priority = activeCameraPriority;
         shopCamera.Priority = inActiveCameraPriority;
 
@@ -160,9 +160,11 @@ public class GameManager : MonoBehaviour
     //ショップカメラへの遷移
     public void ChangeShopCamera()
     {
+        //カメラの優先度変更
         playerFollowCamera.Priority = inActiveCameraPriority;
         shopCamera.Priority = activeCameraPriority;
 
+        //プレイヤー追従カメラの照準の値初期化
         playerFollowCameraPov.m_HorizontalAxis.Value = 90;
         playerFollowCameraPov.m_VerticalAxis.Value = 0;
 
@@ -172,7 +174,7 @@ public class GameManager : MonoBehaviour
     //プレイヤーの移動ショップ→バトル
     public void PlayerWarpShopToBattleField()
     {
-
+        //プレイヤーの位置更新
         player.transform.rotation = playerSpawnRotate;
 
         player.transform.position = playerSpawnPos.position;
@@ -182,6 +184,7 @@ public class GameManager : MonoBehaviour
     //プレイヤーの移動バトル→ショップ
     public void PlayerWarpBattleFieldToShop()
     {
+        //プレイヤーの位置更新
         player.transform.position = playerShopPos.position;
 
         player.transform.rotation = playerShopRotate;
@@ -196,6 +199,7 @@ public class GameManager : MonoBehaviour
 
     }
 
+    //カメラの移動開始
     public void CameraMove()
     {
         mainCamera.GetComponent<CinemachineBrain>().enabled = true;
@@ -212,6 +216,3 @@ public class GameManager : MonoBehaviour
 
 
 }
-
-
-//スペアフレーム用のアイテム追加

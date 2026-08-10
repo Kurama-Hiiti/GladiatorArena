@@ -7,14 +7,20 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 public class ItemList : MonoBehaviour
 {
+    //アイテム一覧表示時のソート機能スクリプト
+
+    //データベース定義
     [SerializeField]
     private ItemDataBase ItemDataBase;
 
+    //一覧表示するオブジェクトのリスト
     private List<GameObject> itemList = new List<GameObject>();
 
+    //アイテム表示空間（Content）のサイズ
     private RectTransform rectTransform;
 
     //Contentのサイズの下端部の余白サイズ
@@ -25,25 +31,6 @@ public class ItemList : MonoBehaviour
     [SerializeField]
     private CommonSoundManager soundManager;
 
-    //該当アイテムが存在しない場合表示されるテキスト
-    [SerializeField]
-    private TextMeshProUGUI itemNoneText;
-
-    //表示されているアイテムの個数をカウントする変数
-    private int visibleItemCount;
-
-
-    //ジョブソートフラグ
-    private bool isSwordManSort;
-
-    private bool isMageSort;
-
-    private bool isNormalSort;
-
-    //レアリティソートフラグ
-    private bool isRaritySort;
-
-    private ItemRarity nowSortItemRarity;
 
 
     //アイテムソート用のトグル
@@ -53,321 +40,104 @@ public class ItemList : MonoBehaviour
 
     private async void Start()
     {
+        //ContentのRectTransformの取得
         rectTransform = GetComponent<RectTransform>();
 
-        itemNoneText.enabled = false;
-
-
-
+        //アイテム一覧表示時に全てのアイテムを生成・表示する
         foreach (var item in ItemDataBase.allItems)
         {
             GameObject addItemImage = Instantiate(item.WeaponImage,this.gameObject.transform);
 
+            //アイテム名のCloneを消す
             addItemImage.name = addItemImage.name.Replace("(Clone)", "");
 
+            //リストに追加
             itemList.Add(addItemImage);
 
 
         }
 
-
+        //アイテム生成によるレイアウト計算が終わるまで待つ
         await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
 
+        //Contentサイズ変更
         if (itemList.Count > 0)
         {
-
             //最後の要素のY軸位置を取得する
             Transform lastItemPos = itemList[itemList.Count - 1].transform;
-
-            //最後の要素の位置からContentのサイズを変更する
-
-            float contentHeight = Mathf.Abs(lastItemPos.localPosition.y) + bottomMargin;
-
-            // 高さだけ変更する
-            Vector2 size = rectTransform.sizeDelta;
-            size.y = contentHeight;
-            rectTransform.sizeDelta = size;
+            ReSizeContent(lastItemPos);
         }
 
 
+        //toggleを定義しソートする
         foreach (var toggle in toggles)
         {
+            Debug.Log("通過");
+
             // スクリプトからイベントを登録（名前を識別子として渡す）
             string filterName = toggle.gameObject.name;
+
             toggle.onValueChanged.AddListener((isOn) => {
-                UpdateFilter(filterName, isOn);
+                // オン/オフどちらに動いても、最新の状態に一括更新する
+                OnToggleChanged(isOn);
             });
         }
 
 
     }
 
+    // トグルがクリックされたときの共通イベント
+    private void OnToggleChanged(bool isOn)
+    {
+        // オンになったときだけSEを鳴らす
+        if (isOn)
+        {
+            soundManager.PlaySE(CommonSoundType.NormalButton);
+        }
+
+        // フィルターとソートをまとめて実行
+        ApplyFilterAndSort();
+    }
+
+
     //ソートリセット関数
     private async void ResetList()
     {
-        itemNoneText.enabled = false;
-
         //一度全ての画像を表示にする
         foreach (var itemImage in itemList)
         {
             itemImage.SetActive(true);
         }
 
+        //レイアウト計算が終わるまで待つ
         await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
 
+        //Contentサイズ変更
         if (itemList.Count > 0)
         {
-
             //最後の要素のY軸位置を取得する
             Transform lastItemPos = itemList[itemList.Count - 1].transform;
-
-            //最後の要素の位置からContentのサイズを変更する
-
-            float contentHeight = Mathf.Abs(lastItemPos.localPosition.y) + bottomMargin;
-
-            // 高さだけ変更する
-            Vector2 size = rectTransform.sizeDelta;
-            size.y = contentHeight;
-            rectTransform.sizeDelta = size;
+            ReSizeContent(lastItemPos);
         }
-
-    }
-
-
-    //ジョブソート
-    private async void JobTypeSortItem(JobType job)
-    {
-        visibleItemCount = 0;
-
-        //一時的にソートするアイテムのリスト
-        List<ItemData> sortItemList = new();
-
-        if (isNormalSort && !isSwordManSort && !isMageSort)
-        {
-            foreach (var ItemImage in itemList)
-            {
-                ItemImage.SetActive(true);
-            }
-
-            sortItemList = ItemDataBase.SortItemsJobTypeAndNormal(job);
-
-            if (isRaritySort)
-            {
-                sortItemList = ItemDataBase.GetItems(nowSortItemRarity,job);
-            }
-
-        }
-        else
-        {
-            sortItemList = ItemDataBase.SortItemsJobType(job);
-
-            if (isRaritySort)
-            {
-                sortItemList = ItemDataBase.SortItemsRarityAndJobType(nowSortItemRarity,job);
-            }
-        }
-
-
-
-
-        foreach (var itemImage in itemList)
-        {
-            if (itemImage.activeInHierarchy)
-            {
-                foreach (var item in sortItemList)
-                {
-                    if (item.name == itemImage.name)
-                    {
-                        itemImage.SetActive(true);
-                        visibleItemCount++;
-                        break;
-                    }
-                    else
-                    {
-                        itemImage.SetActive(false);
-                    }
-                }
-            }
-
-        }
-
-        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
-
-        if (itemList.Count > 0 && visibleItemCount > 0)
-        {
-
-            //表示されているオブジェクトの最後尾を取得する
-            GameObject lastActiveItem = itemList.LastOrDefault(obj => obj != null && obj.activeInHierarchy);
-
-            //最後の要素のY軸位置を取得する
-            Transform lastItemPos = lastActiveItem.transform;
-
-            //最後の要素の位置からContentのサイズを変更する
-
-            float contentHeight = Mathf.Abs(lastItemPos.localPosition.y) + bottomMargin;
-
-            // 高さだけ変更する
-            Vector2 size = rectTransform.sizeDelta;
-            size.y = contentHeight;
-            rectTransform.sizeDelta = size;
-        }
-        else
-        {
-            rectTransform.sizeDelta = new Vector2(0,0);
-
-            itemNoneText.enabled = true;
-
-            foreach (var ItemImage in itemList)
-            {
-                ItemImage.SetActive(false);
-            }
-        }
-
-    }
-
-
-    //共通アイテムソート
-    private async void NormalSortItem()
-    {
-        visibleItemCount = 0;
-
-        if (!isRaritySort)
-        {
-            foreach (var ItemImage in itemList)
-            {
-                ItemImage.SetActive(true);
-            }
-        }
-        else
-        {
-            foreach (var ItemImage in itemList)
-            {
-                foreach (var itemData in ItemDataBase.allItems)
-                {
-                    if (itemData.Rarity == nowSortItemRarity && ItemImage.name == itemData.name)
-                    {
-                        ItemImage.SetActive(true);
-                    }
-
-                }
-            }
-        }
-
-
-        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
-
-        //一時的にソートするアイテムのリスト
-        List<ItemData> sortItemList = new();
-
-        if (isSwordManSort)
-        {
-            sortItemList = ItemDataBase.SortItemsJobTypeAndNormal(JobType.SwordMan);
-        }
-        else if (isMageSort)
-        {
-            sortItemList = ItemDataBase.SortItemsJobTypeAndNormal(JobType.Mage);
-        }
-        else
-        {
-            sortItemList = ItemDataBase.SortItemsJobType(JobType.Normal);
-        }
-
-
         
 
-        foreach (var itemImage in itemList)
-        {
-            if (itemImage.activeInHierarchy)
-            {
-                foreach (var item in sortItemList)
-                {
-                    if (item.name == itemImage.name)
-                    {
-                        itemImage.SetActive(true);
-                        visibleItemCount++;
-                        break;
-                    }
-                    else
-                    {
-                        itemImage.SetActive(false);
-                    }
-                }
-            }
-
-        }
-
-        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
-
-        if (itemList.Count > 0 && visibleItemCount > 0)
-        {
-
-            //表示されているオブジェクトの最後尾を取得する
-            GameObject lastActiveItem = itemList.LastOrDefault(obj => obj != null && obj.activeInHierarchy);
-
-            //最後の要素のY軸位置を取得する
-            Transform lastItemPos = lastActiveItem.transform;
-
-            //最後の要素の位置からContentのサイズを変更する
-
-            float contentHeight = Mathf.Abs(lastItemPos.localPosition.y) + bottomMargin;
-
-            // 高さだけ変更する
-            Vector2 size = rectTransform.sizeDelta;
-            size.y = contentHeight;
-            rectTransform.sizeDelta = size;
-        }
-        else
-        {
-            rectTransform.sizeDelta = new Vector2(0, 0);
-
-            itemNoneText.enabled = true;
-
-            foreach (var ItemImage in itemList)
-            {
-                ItemImage.SetActive(false);
-            }
-        }
-
     }
 
 
-
-
-
-    //剣士アイテムソートボタン
-    public void SwordManItemSort()
+    //生成されたアイテムの最後の要素を考慮したContentサイズに変更する関数
+    private void ReSizeContent(Transform lastItemPos)
     {
-        JobTypeSortItem(JobType.SwordMan);
 
-        isSwordManSort = true;
+        //最後の要素の位置からContentのサイズを変更する
+        float contentHeight = Mathf.Abs(lastItemPos.localPosition.y) + bottomMargin;
 
-        //SE
-        //soundManager.PlaySE(CommonSoundType.NormalButton);
-
+        // 高さだけ変更する
+        Vector2 size = rectTransform.sizeDelta;
+        size.y = contentHeight;
+        rectTransform.sizeDelta = size;
 
     }
 
-    //魔導士アイテムソートボタン
-    public void MageItemSort()
-    {
-        JobTypeSortItem(JobType.Mage);
-
-        isMageSort = true;
-
-        //SE
-        //soundManager.PlaySE(CommonSoundType.NormalButton);
-    }
-
-    //共通アイテムソート
-    public void NormalItemSort()
-    {
-        NormalSortItem();
-
-        isNormalSort = true;
-
-        //SE
-        //soundManager.PlaySE(CommonSoundType.NormalButton);
-    }
 
 
     //ソートリセットボタン
@@ -375,21 +145,10 @@ public class ItemList : MonoBehaviour
     {
         ResetList();
 
-        isSwordManSort = false;
-
-        isMageSort = false;
-
-        isNormalSort = false;
-
-        isRaritySort = false;
-
-        nowSortItemRarity = ItemRarity.None;
-
         foreach (var toggle in toggles)
         {
             toggle.isOn = false;
         }
-
 
         //SE
         soundManager.PlaySE(CommonSoundType.NormalButton);
@@ -398,172 +157,13 @@ public class ItemList : MonoBehaviour
 
 
 
-
-
-
-    //レアリティソート
-    private async void RaritySortItem(ItemRarity rarity)
-    {
-        visibleItemCount = 0;
-
-        //一時的にソートするアイテムのリスト
-        List<ItemData> sortItemList = new();
-
-        //共通アイテムをソート状態か判定
-        if (isNormalSort)
-        {
-            //剣士ソート時
-            if (isSwordManSort)
-            {
-                //レアリティと共通アイテムと剣士アイテムソート
-                sortItemList = ItemDataBase.GetItems(rarity, JobType.SwordMan);
-            }
-            //魔導士ソート時
-            else if (isMageSort)
-            {
-                //レアリティと共通アイテムと魔導士アイテムソート
-                sortItemList = ItemDataBase.GetItems(rarity, JobType.Mage);
-            }
-            //共通アイテムソートのみ
-            else
-            {
-                //レアリティと共通アイテムソート
-                sortItemList = ItemDataBase.GetItems(rarity, JobType.Normal);
-            }
-        }
-        //共通アイテムソートをしていない時
-        else
-        {
-            //剣士ソート時
-            if (isSwordManSort)
-            {
-                //剣士アイテムとレアリティソート
-                sortItemList = ItemDataBase.SortItemsRarityAndJobType(rarity, JobType.SwordMan);
-            }
-            //魔導士ソート時
-            else if (isMageSort)
-            {
-                //魔導士アイテムとレアリティソート
-                sortItemList = ItemDataBase.SortItemsRarityAndJobType(rarity, JobType.Mage);
-            }
-            //レアリティソートのみ
-            else
-            {
-                //レアリティソート
-                sortItemList = ItemDataBase.SortItemsRarity(rarity);
-            }
-        }
-
-
-        foreach (var itemImage in itemList)
-        {
-            if (itemImage.activeInHierarchy)
-            {
-                foreach (var item in sortItemList)
-                {
-                    if (item.name == itemImage.name)
-                    {
-                        itemImage.SetActive(true);
-                        visibleItemCount++;
-                        break;
-                    }
-                    else
-                    {
-                        itemImage.SetActive(false);
-                    }
-                }
-            }
-        }
-
-        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
-
-        if (itemList.Count > 0 && visibleItemCount > 0)
-        {
-
-            //表示されているオブジェクトの最後尾を取得する
-            GameObject lastActiveItem = itemList.LastOrDefault(obj => obj != null && obj.activeInHierarchy);
-
-            //最後の要素のY軸位置を取得する
-            Transform lastItemPos = lastActiveItem.transform;
-
-            //最後の要素の位置からContentのサイズを変更する
-
-            float contentHeight = Mathf.Abs(lastItemPos.localPosition.y) + bottomMargin;
-
-            // 高さだけ変更する
-            Vector2 size = rectTransform.sizeDelta;
-            size.y = contentHeight;
-            rectTransform.sizeDelta = size;
-        }
-        else
-        {
-            rectTransform.sizeDelta = new Vector2(0, 0);
-
-            itemNoneText.enabled = true;
-
-            foreach (var ItemImage in itemList)
-            {
-                ItemImage.SetActive(false);
-            }
-        }
-
-        isRaritySort = true;
-
-        nowSortItemRarity = rarity;
-
-    }
-
-
-    //コモンアイテムソート
-    public void CommonItemSort()
-    {
-        RaritySortItem(ItemRarity.Common);
-
-        //SE
-        //soundManager.PlaySE(CommonSoundType.NormalButton);
-    }
-
-    //レアアイテムソート
-    public void RareItemSort()
-    {
-        RaritySortItem(ItemRarity.Rare);
-
-        //SE
-        //soundManager.PlaySE(CommonSoundType.NormalButton);
-    }
-
-    //エピックアイテムソート
-    public void EpicItemSort()
-    {
-        RaritySortItem(ItemRarity.Epic);
-
-        //SE
-        //soundManager.PlaySE(CommonSoundType.NormalButton);
-    }
-
-    //レジェンダリーアイテムソート
-    public void LegendaryItemSort()
-    {
-        RaritySortItem(ItemRarity.Legendary);
-
-        //SE
-        //soundManager.PlaySE(CommonSoundType.NormalButton);
-    }
-
-    //ユニークアイテムソート
-    public void UniqueItemSort()
-    {
-        RaritySortItem(ItemRarity.Unique);
-
-        //SE
-        //soundManager.PlaySE(CommonSoundType.NormalButton);
-    }
-
-
+    //アイテム一覧が表示された時の処理
     private void OnEnable()
     {
+        //全てのアイテム表示
         ResetList();
 
+        //トグルの状況リセット
         foreach (var toggle in toggles)
         {
             toggle.isOn = false;
@@ -572,150 +172,124 @@ public class ItemList : MonoBehaviour
     }
 
 
-    private void OnDisable()
+
+    private async void ApplyFilterAndSort()
     {
+        // 現在「オン」になっているトグルの名前（条件）をすべて取得
+        // 例: ["SwordMan", "Rare"] のようなリストが取れる
+        List<string> activeFilters = toggles
+            .Where(t => t.isOn)
+            .Select(t => t.gameObject.name)
+            .ToList();
 
-        isSwordManSort = false;
+        //ソートするジョブタイプリスト
+        List<JobType> sortJobTypes = new List<JobType>();
 
-        isMageSort = false;
+        //ソートするレアリティリスト
+        List<ItemRarity> sortItemRarities = new List<ItemRarity>();
 
-        isNormalSort = false;
-
-        isRaritySort = false;
-
-        nowSortItemRarity = ItemRarity.None;
-    }
-
-
-
-    //トグルソート
-    public void UpdateFilter(string filterName, bool isOn)
-    {
-        if (isOn)
+        //取得したactiveFiltersはトグルの名前なので名前と一致するジョブタイプやレアリティを選定する
+        foreach (var filter in activeFilters)
         {
-            //SE
-            soundManager.PlaySE(CommonSoundType.NormalButton);
-
-            switch (filterName)
+            switch (filter)
             {
                 case "Normal":
-                    NormalItemSort();
+                    sortJobTypes.Add(JobType.Normal);
                     break;
                 case "SwordMan":
-                    SwordManItemSort();
+                    sortJobTypes.Add(JobType.SwordMan);
                     break;
                 case "Mage":
-                    MageItemSort();
+                    sortJobTypes.Add(JobType.Mage);
                     break;
                 case "Common":
-                    CommonItemSort();
+                    sortItemRarities.Add(ItemRarity.Common);
                     break;
                 case "Rare":
-                    RareItemSort();
+                    sortItemRarities.Add(ItemRarity.Rare);
                     break;
                 case "Epic":
-                    EpicItemSort();
+                    sortItemRarities.Add(ItemRarity.Epic);
                     break;
                 case "Legendary":
-                    LegendaryItemSort();
+                    sortItemRarities.Add(ItemRarity.Legendary);
                     break;
                 case "Unique":
-                    UniqueItemSort();
+                    sortItemRarities.Add(ItemRarity.Unique);
                     break;
             }
         }
-        else
+
+        //ソートするアイテムのリスト
+        List<ItemData> sortItemList = ItemDataBase.allItems;
+
+        // もしトグルが1つも挙がっていなければ、全アイテムを表示
+        if (activeFilters.Count == 0)
         {
-            switch (filterName)
+            foreach (var itemImage in itemList)
             {
-                case "Normal":
-                    isNormalSort = false;
-                    ResetList();
-                    RetrySort();
-                    break;
-                case "SwordMan":
-                    isSwordManSort = false;
-                    ResetList();
-                    RetrySort();
-                    break;
-                case "Mage":
-                    isMageSort = false;
-                    ResetList();
-                    RetrySort();
-                    break;
-                case "Common":
-                    isRaritySort = false;
-                    ResetList();
-                    RetrySort();
-                    break;
-                case "Rare":
-                    isRaritySort = false;
-                    ResetList();
-                    RetrySort();
-                    break;
-                case "Epic":
-                    isRaritySort = false;
-                    ResetList();
-                    RetrySort();
-                    break;
-                case "Legendary":
-                    isRaritySort = false;
-                    ResetList();
-                    RetrySort();
-                    break;
-                case "Unique":
-                    isRaritySort = false;
-                    ResetList();
-                    RetrySort();
-                    break;
+                itemImage.SetActive(true);
             }
-            
+        }else
+        {
+            //ジョブソート
+            if (sortJobTypes.Count > 0)
+            {
+                // オンになっているトグルの条件に「合致する」アイテムだけを抽出（フィルター）
+                sortItemList = sortItemList.Where(item =>
+                sortJobTypes.Contains(item.JobType)
+                ).ToList();
+            }
+
+            //レアリティソート
+            if (sortItemRarities.Count > 0)
+            {
+                // オンになっているトグルの条件に「合致する」アイテムだけを抽出（フィルター）
+                sortItemList = sortItemList.Where(item =>
+                sortItemRarities.Contains(item.Rarity)
+                ).ToList();
+
+            }
+
         }
 
-        
-    }
-
-
-
-    //再検索関数
-    private void RetrySort()
-    {
-        foreach (var t in toggles)
+        //ソートして表示されるアイテムを表示
+        foreach (var itemImage in itemList)
         {
-            if (t.isOn)
+            foreach (var item in sortItemList)
             {
-                switch (t.gameObject.name)
+                if (item.name == itemImage.name)
                 {
-                    case "Normal":
-                        isNormalSort = false;
-                        NormalItemSort();
-                        break;
-                    case "SwordMan":
-                        isSwordManSort = false;
-                        SwordManItemSort();
-                        break;
-                    case "Mage":
-                        isMageSort = false;
-                        MageItemSort();
-                        break;
-                    case "Common":
-                        CommonItemSort();
-                        break;
-                    case "Rare":
-                        RareItemSort();
-                        break;
-                    case "Epic":
-                        EpicItemSort();
-                        break;
-                    case "Legendary":
-                        LegendaryItemSort();
-                        break;
-                    case "Unique":
-                        UniqueItemSort();
-                        break;
+                    itemImage.SetActive(true);
+                    break;
+                }
+                else
+                {
+                    itemImage.SetActive(false);
                 }
             }
         }
+
+
+        //アイテム生成によるレイアウト計算が終わるまで待つ
+        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
+
+
+        //表示されているオブジェクトの最後尾を取得する
+        GameObject lastActiveItem = itemList.LastOrDefault(obj => obj != null && obj.activeInHierarchy);
+
+        //最後の要素のY軸位置を取得する
+        Transform lastItemPos = lastActiveItem.transform;
+
+        //最後の要素の位置からContentのサイズを変更する
+        ReSizeContent(lastItemPos);
+
+
+
     }
+
+
+
+
 
 }
