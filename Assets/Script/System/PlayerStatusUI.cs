@@ -282,14 +282,17 @@ public class PlayerStatusUI : MonoBehaviour
     }
 
 
+    //発動中スキル表示関数
     private void UpdateWeaponSkillTextUI()
     {
+        //スキルが無いとき
         if (activeSkills.Count == 0)
         {
             weaponSkillText.text = "スキルなし";
         }
         else
         {
+            //activeSkillsに格納されたスキル名を記述する
             weaponSkillText.text = string.Join("\n", activeSkills);
         }
 
@@ -298,6 +301,7 @@ public class PlayerStatusUI : MonoBehaviour
     }
 
 
+    //スキル名をactiveSkillsに格納する関数
     private void AddSkill(string skillName)
     {
         if (!activeSkills.Contains(skillName))
@@ -308,12 +312,13 @@ public class PlayerStatusUI : MonoBehaviour
 
 
 
+    //ステータス画面表示時に発動しているスキルを取得する関数
     private void ActiveSkillCheck(Player player)
     {
         activeSkills.Clear();
         weaponSkillText.text = string.Empty;
 
-
+        
         if (player.isFlame)
         {
             AddSkill("燃焼");
