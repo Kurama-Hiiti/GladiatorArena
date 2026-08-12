@@ -5159,7 +5159,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1041376265}
         m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
-        m_MethodName: SkillLevelUpButtonF
+        m_MethodName: OnClickSkillUpF
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17782,7 +17782,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1041376265}
         m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
-        m_MethodName: SkillLevelUpButtonR
+        m_MethodName: OnClickSkillUpR
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -27908,7 +27908,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1041376265}
         m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
-        m_MethodName: SkillLevelUpButtonE
+        m_MethodName: OnClickSkillUpE
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -40381,7 +40381,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1041376265}
         m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
-        m_MethodName: SkillLevelUpButtonQ
+        m_MethodName: OnClickSkillUpQ
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

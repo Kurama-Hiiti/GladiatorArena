@@ -12,6 +12,7 @@ using static UnityEditor.Experimental.GraphView.GraphView;
 using static UnityEditor.Progress;
 #endif
 
+//レアリティ定義
 public class RarityRate
 {
     public float common;
@@ -21,13 +22,8 @@ public class RarityRate
 
 }
 
-//public struct HoldItem
-//{
-//    public int listNum;
-//    public ItemData holdItemData;
-//    public GameObject holdItemImageObj;
-//}
 
+//ショップスロット定義
 [System.Serializable]
 public class ShopSlot
 {
@@ -39,11 +35,18 @@ public class ShopSlot
     public bool isHold;           // ホールド中か
 }
 
+//ホールドしたアイテムの定義
 public class SaveShopSlotData
 {
     public ItemData saveItem;  // セーブされた置かれているデータ
     public GameObject saveObj; // セーブされた表示されているオブジェクト
     public bool isSaveHold;    // ホールド中か
+}
+
+// スキルの種類を定義
+public enum SkillType
+{
+    Q, E, R, F
 }
 
 public class ShopManager : MonoBehaviour
@@ -57,7 +60,7 @@ public class ShopManager : MonoBehaviour
     //セーブしたショップスロットデータ
     private List<SaveShopSlotData> saveSlots = new List<SaveShopSlotData>();
 
-    //アイテムの出現確率
+    //アイテムの出現確率定義
     private List<RarityRate> rates = new()
     {
         new RarityRate { common = 90, rare = 10, epic =  0,  legendary =  0},
@@ -87,9 +90,6 @@ public class ShopManager : MonoBehaviour
 
     //ショップに陳列されているアイテムのデータリスト
     private List<ItemData> shopItems = new();
-
-    //ショップに陳列されているアイテムの画像データ
-    //private List<GameObject> shopItemImage = new();
 
     //プレイヤーのジョブタイプ
     private JobType playerJobType;
@@ -170,14 +170,8 @@ public class ShopManager : MonoBehaviour
     //ユニークアイテム用追加マネー
     private int uniqueItemMoney = 10;
 
-    //ホールドしたアイテムのデータ格納リスト
-    //private List<HoldItem> holdItems = new();
-
     //ホールドしたいアイテムを格納
     private GameObject holdItem;
-
-    //ホールドしたいアイテムのデータ格納
-    //private HoldItem holdItemStruct;
 
     //ショップに並んでいるアイテムデータリスト
     private HashSet<ItemData> selectedItems = new();
@@ -217,8 +211,10 @@ public class ShopManager : MonoBehaviour
         // EventSystem をシーン内から取得
         eventSystem = EventSystem.current;
 
+        //リロールテキストの初期化
         rerollText.text = "リロール(-" + rerollMoney + ")";
 
+        //スキルレベルのテキスト初期化
         skillLevelTextQ.text = "Lv.1";
         skillLevelTextE.text = "Lv.1";
         skillLevelTextR.text = "Lv.1";
@@ -227,6 +223,7 @@ public class ShopManager : MonoBehaviour
 
     private void Update()
     {
+        //ショップステート時のみ実行
         if (GameManager.instance.state == GameManager.GameState.Shop)
         {
             //ジョブタイプチェック
@@ -236,6 +233,7 @@ public class ShopManager : MonoBehaviour
             //ショップに陳列されるレアリティのチェック
             if (!isRateCheck)
             {
+                //レアリティ設定
                 nowRate = GetRate(GameManager.instance.waveNum);
                 isRateCheck = true;
 
@@ -250,6 +248,7 @@ public class ShopManager : MonoBehaviour
             //ショップに装備陳列
             if (!isShowItem)
             {
+                //ユニークアイテム出現ウェーブ時
                 if (GameManager.instance.waveNum == uniqueItemWave && !isUniqueShop)
                 {
                     //ユニークアイテム出現
@@ -257,27 +256,30 @@ public class ShopManager : MonoBehaviour
 
                     //ユニークアイテム分のお金を加算
                     GameManager.instance.player.GetComponent<Player>().money += uniqueItemMoney;
+
                     //お金のUI変更
                     UIManager.instance.ChangeMoney();
 
-
+                    //フラグ更新
                     isUniqueShop = true;
                     isShowUniqueItem = true;
 
                 }
                 else 
                 {
+                    //通常のアイテム陳列処理
                     GenerateShopItems();
                 }
                 
+                //フラグ更新
                 isShowItem = true;
 
             }
 
 
-
             //ショップ内のアイテム操作
 
+            //マウスの左クリック、アイテムを持っていない時、クリック可能時
             if (Input.GetMouseButton(0) && !isItemCatch && GameManager.instance.isClick)
             {
 
@@ -297,16 +299,20 @@ public class ShopManager : MonoBehaviour
                 // アイテム操作
                 foreach (RaycastResult result in results)
                 {
+                    //アイテムのタグ判定
                     if (result.gameObject.CompareTag("Item"))
                     {
+                        //クリックしたアイテムを格納
                         catchItem = result.gameObject;
 
                         //クリックしたアイテムを最前面に表示
                         catchItem.transform.SetParent(shopCanvas.transform);
                         catchItem.transform.SetAsLastSibling();
 
-                        //クリックしたアイテムの初期位置
+                        //クリックしたアイテムの初期位置（購入しなかった場合元の位置に戻すため）
                         catchItemOriginPos = catchItem.transform.position;
+
+                        //アイテムをつかんだフラグ更新
                         isItemCatch = true;
 
                         //クリックしたアイテムの詳細表示
@@ -334,6 +340,7 @@ public class ShopManager : MonoBehaviour
             }
             else if (Input.GetMouseButton(0) && isItemCatch && catchItem != null)//クリックしている間はマウスポインターにアイテムが追従する
             {
+                //クリックしたアイテムの位置をマウスポインターの位置と連動させる
                 catchItem.transform.position = Input.mousePosition;
 
                 //アイテムを所持している且つ売却スペースへドラックした場合
@@ -349,31 +356,38 @@ public class ShopManager : MonoBehaviour
             }
             else if (Input.GetMouseButtonUp(0) && isItemCatch)//クリックを離したとき
             {
+                //アイテムをつかんでいる判定を更新
                 isItemCatch = false;
 
+                //クリックを離した際にcatchItemにアイテムが格納されている場合
                 if (catchItem != null)
                 {
 
                     //アイテムのクリックを離したときに配置するのか判定
-                    if (IsHaveItem() && catchItem.GetComponent<ItemIndividualData>().isSell)//所持していて売却スペースにある場合
+                    if (IsHaveItem() && catchItem.GetComponent<ItemIndividualData>().isSell)//アイテムを購入済みで売却スペースにある場合
                     {
+                        //アイテム売却
                         ItemSell();
 
                     }
-                    else if (IsHaveItem())//アイテムを所持している時
+                    else if (IsHaveItem())//アイテムを購入済みの場合
                     {
+                        //アイテムの移動処理
                         HaveItemMove();
 
                     }
-                    else if (!IsHaveItem() && IsHaveMoney())//所持していないアイテムかつ選択したアイテムの値段以上のお金を所持している場合
+                    else if (!IsHaveItem() && IsHaveMoney())//購入していないアイテムかつ選択したアイテムの値段以上のお金を所持している場合
                     {
+                        //アイテム購入処理
                         ItemBuy();
                     }
                     else
                     {
+                        //どの場合にも該当しない場合は元の位置に戻す
                         catchItem.transform.position = catchItemOriginPos;
                     }
                     
+                    //つかんでいたアイテムを空にする
                     catchItem = null;
                 }
 
@@ -381,6 +395,7 @@ public class ShopManager : MonoBehaviour
 
 
             //アイテムのホールド処理
+            //マウスの右クリック、アイテムを持っていない時、クリック可能時
             if (Input.GetMouseButtonDown(1) && !isItemCatch && GameManager.instance.isClick)
             {
 
@@ -400,9 +415,10 @@ public class ShopManager : MonoBehaviour
 
 
 
-                // アイテム操作
+                // アイテムのホールド処理
                 foreach (RaycastResult result in results)
                 {
+                    //アイテムのタグ判定
                     if (result.gameObject.CompareTag("Item"))
                     {
                         //ホールドしたいアイテムのオブジェクト
@@ -417,7 +433,8 @@ public class ShopManager : MonoBehaviour
                             if (clickedSlot.currentItem.Rarity != ItemRarity.Unique)
                             {
                                 clickedSlot.isHold = !clickedSlot.isHold; // ホールド状態を反転
-                                // ホールド用のエフェクト表示などの処理
+
+                                // ホールド用のエフェクト表示の処理
                                 if (clickedSlot.isHold) clickedSlot.holdIcon.SetActive(true);
                                 if (!clickedSlot.isHold) clickedSlot.holdIcon.SetActive(false);
 
@@ -427,72 +444,6 @@ public class ShopManager : MonoBehaviour
                             }
 
                         }
-
-                        ////ホールドしたいアイテムがショップに陳列されているアイテムのリストの何番目かを判定
-                        //for (int i = 0; shopItemImage.Count > i; i++) 
-                        //{
-                        //    if (shopItemImage[i].name == holdItem.name)
-                        //    {
-                        //        //ホールドしたいアイテムのリストの番号設定
-                        //        holdItemStruct.listNum = i;
-                        //    }
-                        //}
-
-                        ////ホールドしたいアイテムのItemDataを取得
-                        //holdItemStruct.holdItemData = GetItemData(holdItem);
-
-                        ////ホールドしたいアイテムのImage
-                        //holdItemStruct.holdItemImageObj = holdItem;
-
-                        ////ここでホールドしたいアイテムのリストに追加するかどうかを判定
-                        //if (holdItems.Count == 0)
-                        //{
-                        //    holdItems.Add(holdItemStruct);
-
-                        //    foreach (var item in holdItems)
-                        //    {
-                        //        Debug.Log($"中身を確認 -> Num: {item.listNum}, Data: {item.holdItemData}, Image: {item.holdItemImageObj}");
-                        //    }
-
-                        //    //ホールド表示をショップに示す
-
-                        //    //ホールドSE
-
-                        //}
-                        //else
-                        //{
-                        //    //ホールドしたいアイテムのリストに同じものが無いとき追加
-                        //    if (!holdItems.Contains(holdItemStruct))
-                        //    {
-                        //        holdItems.Add(holdItemStruct);
-
-                        //        //ホールド表示をショップに示す
-
-                        //        //ホールドSE
-
-
-                        //        foreach (var item in holdItems)
-                        //        {
-                        //            Debug.Log($"中身を確認 -> Num: {item.listNum}, Data: {item.holdItemData}, Image: {item.holdItemImageObj}");
-                        //        }
-                        //    }
-                        //    else　//リストに含まれていた場合は除外
-                        //    {
-                        //        holdItems.Remove(holdItemStruct);
-
-                        //        //ホールド表示をショップから消す
-
-                        //        //ホールド解除SE
-
-                        //        foreach (var item in holdItems)
-                        //        {
-                        //            Debug.Log($"中身を確認 -> Num: {item.listNum}, Data: {item.holdItemData}, Image: {item.holdItemImageObj}");
-                        //        }
-                        //        Debug.Log(holdItems.Count);
-                        //    }
-
-                        //}
-
 
 
                     }
@@ -507,9 +458,10 @@ public class ShopManager : MonoBehaviour
 
     }
 
-    //プレイヤーのジョブタイプチェック
+    //プレイヤーのジョブタイプ取得関数
     private void PlayerJobTypeCheck()
     {
+
         if(playerJobType == JobType.None)
         {
             playerJobType = GameManager.instance.player.GetComponent<Player>().data.JobType;
@@ -520,19 +472,22 @@ public class ShopManager : MonoBehaviour
     }
 
 
+    //ショップアイテムの生成処理
     private void GenerateShopItems()
     {
+        //陳列アイテムデータ初期化
         selectedItems.Clear();
 
-        //リロールテキスト変更
+        //リロール回数が既定の回数以上の場合リロールテキスト変更
         if (limitRerollCount <= rerollCount)
         {
             rerollText.text = "リロール(-" + increasedRerollMoney + ")";
         }
 
+        //ショップアイテム陳列処理
         foreach (var slot in shopSlots)
         {
-            // ホールド中なら何もしない（維持）
+            // ショップアイテムスロットの状態がホールド中なら何もしない（維持）
             if (slot.isHold)
             {
                 if (slot.currentObj != null) slot.currentObj.SetActive(true);
@@ -544,12 +499,15 @@ public class ShopManager : MonoBehaviour
             // 1. 古いアイテムを消す
             if (slot.currentObj != null) Destroy(slot.currentObj);
 
-            // 2. 新しいアイテムを抽選（重複なしロジックは別途）
+            // 2. 新しいアイテムを抽選
             ItemData nextItem = GetRandomItem();
 
             // 3. 生成してスロット情報を更新
+            //3-1.データの変更
             slot.currentItem = nextItem;
+            //3-2.画像の変更
             slot.currentObj = Instantiate(nextItem.WeaponImage, slot.pos);
+            //3-3.名前の変更
             slot.currentObj.name = nextItem.name;
 
             // 4. 価格表示の更新
@@ -560,14 +518,19 @@ public class ShopManager : MonoBehaviour
 
     }
 
+    //陳列されるアイテムの抽選関数
     private ItemData GetRandomItem()
     {
+        //ランダムな数字定義
         float rateCheck = Random.Range(0, 100);
 
-        List<ItemData> itemList = new();
-
+        //抽選されたレアリティ
         ItemRarity nowRarity;
 
+        //抽選されたレアリティのアイテム一覧
+        List<ItemData> itemList = new();
+
+        //レアリティ抽選
         if (rateCheck < nowRate.common)
         {
             nowRarity = ItemRarity.Common;
@@ -585,146 +548,44 @@ public class ShopManager : MonoBehaviour
             nowRarity = ItemRarity.Legendary;
         }
 
+        //抽選されたアイテム格納
         itemList = itemDataBase.GetItems(nowRarity, playerJobType);
 
+        //もうすでにショップに並んでいるアイテムを除外
         List<ItemData> availableItems = itemList
             .Where(item => !selectedItems.Contains(item))
             .ToList();
 
+        //アイテム選定
         ItemData selected = availableItems[Random.Range(0, availableItems.Count)];
 
+        //ショップに並ぶアイテムリストへ追加
         selectedItems.Add(selected);
 
         return selected;
     }
 
 
-    //ショップアイテムの生成
-    //private void GenerateShopItems()
-    //{
-    //    //ショップに陳列されているアイテムがある場合は削除する
-    //    DestroyShopItem();
-
-    //    //ショップに陳列されているアイテムのデータリストリセット
-    //    shopItems.Clear();
-
-    //    //ショップに陳列されているアイテムの価格表示リセット
-    //    ShopMoneyTextReset();
-
-    //    //リロールテキスト変更
-    //    if (limitRerollCount <= rerollCount)
-    //    {
-    //        rerollText.text = "Reroll(-" + increasedRerollMoney + ")";
-    //    }
-
-    //    HashSet<ItemData> selectedItems = new();
-
-    //    //デバッグ用レート
-    //    //nowRate.common = 0;
-    //    //nowRate.rare = 0;
-    //    //nowRate.epic = 0;
-    //    //nowRate.legendary = 100;
-
-    //    for (int i = 0; i < shopSlotPos.Length; i++)
-    //    {
-    //        float rateCheck = Random.Range(0,100);
-
-    //        List<ItemData> itemList = new();
-
-    //        GameObject itemImage;
-
-    //        ItemRarity nowRarity;
-
-    //        bool isProcessed = false;
-
-    //        if (rateCheck < nowRate.common)
-    //        {
-    //            nowRarity = ItemRarity.Common;
-    //        }
-    //        else if (rateCheck < nowRate.common + nowRate.rare)
-    //        {
-    //            nowRarity = ItemRarity.Rare;
-    //        }
-    //        else if (rateCheck < nowRate.common + nowRate.rare + nowRate.epic)
-    //        {
-    //            nowRarity = ItemRarity.Epic;
-    //        }
-    //        else
-    //        {
-    //            nowRarity = ItemRarity.Legendary;
-    //        }
-
-    //        itemList = itemDataBase.GetItems(nowRarity, playerJobType);
-
-    //        List<ItemData> availableItems = itemList
-    //            .Where(item => !selectedItems.Contains(item))
-    //            .ToList();
-
-    //        if (availableItems.Count == 0)
-    //        {
-    //            Debug.Log("要素なし");
-    //            break;
-    //        }
-
-    //        ItemData selected = availableItems[Random.Range(0, availableItems.Count)];
-
-    //        //ホールドしているアイテムか判定
-    //        if (holdItems.Count != 0)
-    //        {
-    //            for (int k = 0; holdItems.Count > k; k++)
-    //            {
-    //                if (holdItems[k].listNum == i)
-    //                {
-    //                    shopItems.Add(holdItems[k].holdItemData);
-    //                    shopItemImage.Add(holdItems[k].holdItemImageObj);
-
-    //                    holdItems[k].holdItemImageObj.SetActive(true);
-    //                    isProcessed = true;
-    //                    break;
-    //                }
-    //            }
-    //        }
-
-    //        if (isProcessed)
-    //        {
-    //            continue;
-    //        }
-
-    //        itemImage = Instantiate(selected.WeaponImage, shopSlotPos[i]);
-    //        itemImage.name = itemImage.name.Replace("(Clone)", "");
-
-    //        shopItems.Add(selected);
-    //        selectedItems.Add(selected);
-    //        shopItemImage.Add(itemImage);
-    //    }
-
-
-    //    //ショップに陳列されているアイテムの価格表示
-    //    for (int i = 0; i < shopItems.Count; i++)
-    //    {
-    //        Debug.Log($"リストの数: {shopItems.Count}");
-    //        shopMoneyTextList[i].text = shopItems[i].Value.ToString();
-    //    }
-    //}
-
     //ユニークアイテム出現ショップ
     private void GenerateUniqueItems()
     {
+        //陳列アイテムデータ初期化
         selectedItems.Clear();
 
-        //ここでユニークアイテム陳列前の情報をセーブする
         //一度空にする
         saveSlots.Clear();
 
+        //ここでユニークアイテム陳列前の情報をセーブする（ユニークアイテム陳列前にホールドしていたデータを保持するため）
         foreach (var slot in shopSlots)
         {
+            //saveSlotsへショップアイテムの情報を格納
             saveSlots.Add(new SaveShopSlotData { 
                 saveItem = slot.currentItem,
                 saveObj = slot.currentObj,
                 isSaveHold = slot.isHold,
                 });
 
-            // 2. 表示中のオブジェクトを一旦消す（または非アクティブにする）
+            // 表示中のオブジェクトを一旦非アクティブにする
             if (slot.currentObj != null) slot.currentObj.SetActive(false);
 
             //一旦ホールドアイコンを非表示にする
@@ -740,7 +601,7 @@ public class ShopManager : MonoBehaviour
 
             // --- ここから新しいアイテムの抽選・生成 ---
 
-            // 新しいアイテムを抽選（重複なしロジックは別途）
+            // 新しいアイテムを抽選
             ItemData nextItem = GetUniqueItem();
 
             //データがない場合は空にする
@@ -766,9 +627,9 @@ public class ShopManager : MonoBehaviour
 
     }
 
+    //陳列されるユニークアイテムの抽選関数
     private ItemData GetUniqueItem()
     {
-        float rateCheck = Random.Range(0, 100);
 
         List<ItemData> itemList = new();
 
@@ -776,12 +637,14 @@ public class ShopManager : MonoBehaviour
 
         itemList = itemDataBase.GetItems(nowRarity, playerJobType);
 
+        //もうすでにショップに並んでいるアイテムを除外
         List<ItemData> availableItems = itemList
             .Where(item => !selectedItems.Contains(item))
             .ToList();
 
         ItemData selected;
 
+        //陳列するべきユニークアイテムの有無確認
         if (availableItems.Count == 0)
         {
             selected = null;
@@ -801,10 +664,12 @@ public class ShopManager : MonoBehaviour
     //ユニークアイテムショップから通常ショップへ戻る処理
     private void ReturnToNormalShop()
     {
+        //一度ユニークアイテム表示前の状態へ戻す
         for (int i = 0; i < shopSlots.Count; i++)
         {
             if (i >= saveSlots.Count) break;
 
+            //スロット状況を定義
             var slot = shopSlots[i];
             var saved = saveSlots[i];
 
@@ -831,59 +696,11 @@ public class ShopManager : MonoBehaviour
             }
         }
 
+        //ショップアイテム生成
         GenerateShopItems();
     }
 
 
-
-    //ショップに陳列されているアイテムの価格表示リセット
-    private void ShopMoneyTextReset()
-    {
-
-        for (int i = 0; i < shopMoneyTextList.Count; i++)
-        {
-            shopMoneyTextList[i].text = "--";
-        }
-    }
-
-
-    //ショップに並んでいるアイテムを削除
-    //private void DestroyShopItem()
-    //{
-    //    if (shopItemImage.Count != 0)
-    //    {
-    //        for (int i = 0; i < shopItemImage.Count; i++)
-    //        {
-    //            //nullチェック
-    //            if (shopItemImage[i] == null) continue;
-
-    //            // ホールドされているかチェック
-    //            bool isHold = false;
-    //            foreach (var hold in holdItems)
-    //            {
-    //                if (shopItemImage[i] == hold.holdItemImageObj)
-    //                {
-    //                    isHold = true;
-    //                    break;
-    //                }
-    //            }
-
-    //            if (isHold)
-    //            {
-    //                // ホールドなら非表示にするだけ
-    //                shopItemImage[i].SetActive(false);
-    //            }
-    //            else
-    //            {
-    //                // ホールドでないなら削除
-    //                Destroy(shopItemImage[i]);
-    //            }
-
-    //        }
-
-    //        shopItemImage.Clear();
-    //    }
-    //}
 
     //リロール関数 ボタンに設定
     public void ShopReroll()
@@ -891,28 +708,36 @@ public class ShopManager : MonoBehaviour
 
 
         //ここで所持金を減らす
+        //リロール回数によってリロールの値段が代わる
         if (rerollCount < limitRerollCount && rerollMoney <= playerScript.money)
         {
+            //ショップのアイテム表示フラグを変更
             isShowItem = false;
+
             //お金計算
             playerScript.money -= rerollMoney;
 
             //お金のUI変更
             UIManager.instance.ChangeMoney();
 
+            //リロール回数加算
             rerollCount++;
 
             //SE
             soundManager.PlaySE(CommonSoundType.Buy);
         }
-        else if (increasedRerollMoney <= playerScript.money)
+        else if (increasedRerollMoney <= playerScript.money)//リロール値段上昇時
         {
+            //ショップのアイテム表示フラグを変更
             isShowItem = false;
+
             //お金計算
             playerScript.money -= increasedRerollMoney;
 
             //お金のUI変更
             UIManager.instance.ChangeMoney();
+
+            //リロール回数加算
             rerollCount++;
 
             //SE
@@ -930,6 +755,7 @@ public class ShopManager : MonoBehaviour
     }
 
 
+    //ウェーブ数に応じたアイテムの出現確率取得関数
     private RarityRate GetRate(int waveNum)
     {
         if (rates.Count <= waveNum - 1)
@@ -950,14 +776,19 @@ public class ShopManager : MonoBehaviour
 
         if (GameManager.instance.isClick)
         {
+            //ステートをバトル状態へ更新
             GameManager.instance.state = GameManager.GameState.Battle;
 
+            //アイテム出現確率取得フラグ更新
             isRateCheck = false;
 
+            //アイテム表示フラグ更新
             isShowItem = false;
 
+            //ショップ画面非表示
             UIManager.instance.shopCanvas.SetActive(false);
 
+            //バトル時の画面表示
             UIManager.instance.playerCanvas.SetActive(true);
 
             //プレイヤーのスポーン
@@ -969,7 +800,7 @@ public class ShopManager : MonoBehaviour
             //リロール回数リセット
             rerollCount = 0;
 
-            //プレイヤーのステータス保持
+            //プレイヤーのステータス保持(バトル中にステータスが変化する場合があるので元のステータスを保持する)
             playerScript.OriginStatusSet();
 
             //SE
@@ -992,7 +823,7 @@ public class ShopManager : MonoBehaviour
     }
 
 
-    //プレイヤーのアイテムリストに格納されているのかチェック
+    //プレイヤーのアイテムリストに格納されているのかチェック(アイテム購入済みかの判定)
     private bool IsHaveItem()
     {
         //ここでプレイヤーが所持しているのか判定
@@ -1048,11 +879,13 @@ public class ShopManager : MonoBehaviour
         {
             if (itemDataBase.allItems[i].name == catchItem.name)
             {
+                //購入金額の半額が売価（端数切り捨て）
                 int addValue = itemDataBase.allItems[i].Value / 2;
-                //お金計算
+
+                //お金加算
                 playerScript.money += addValue;
 
-                //お金のUI変更
+                //所持金のUI変更
                 UIManager.instance.ChangeMoney();
 
                 //還元価格表示非表示
@@ -1072,7 +905,7 @@ public class ShopManager : MonoBehaviour
     //所持しているアイテムを移動させる処理
     private void HaveItemMove()
     {
-        //クリックしたアイテムの初期位置と移動先の位置に変更が無ければ初期位置に戻す
+        //クリックしたアイテムの初期位置と移動先の位置(アイテムを配置するフレームの位置)に変更が無ければ初期位置に戻す
         if (catchItemOriginPos == catchItem.GetComponent<ItemIndividualData>().itemSetPos)
         {
             catchItem.transform.position = catchItemOriginPos;
@@ -1099,7 +932,7 @@ public class ShopManager : MonoBehaviour
             //アイテムセット音
             soundManager.PlaySE(CommonSoundType.ItemSet);
 
-            //スペアフレームにアイテムがおかれた場合プレイヤーが所持しているアイテムの場合リストから外す
+            //スペアフレームにアイテムがおかれた場合、プレイヤーが所持（装備）しているアイテムのリストから外す
             if (catchItem.GetComponent<ItemIndividualData>().isSpare)
             {
                 for (int i = 0; i < playerScript.itemList.Count; i++)
@@ -1112,7 +945,7 @@ public class ShopManager : MonoBehaviour
                 }
 
             }
-            else//指定の場所に配置された場合リストに追加
+            else//指定の場所(アイテムの装備フレーム)に配置された場合リストに追加
             {
                 for (int i = 0; i < itemDataBase.allItems.Count; i++)
                 {
@@ -1142,10 +975,10 @@ public class ShopManager : MonoBehaviour
     //アイテムを購入する処理
     private void ItemBuy()
     {
-        //選択したアイテムの位置が変更された場合（ちゃんとフレームにセットできた場合）
+        //選択したアイテムの位置が変更された場合（ちゃんとフレームにセットした場合）
         if (catchItemOriginPos != catchItem.GetComponent<ItemIndividualData>().itemSetPos)
         {
-            // Raycastで当たったGameObjectから、どのスロットか特定する
+            // クリックしているアイテムについてRaycastで当たったGameObjectから、どのスロットか特定する
             var clickedSlot = shopSlots.Find(s => s.currentObj == catchItem);
 
             //価格表示を変更する
@@ -1155,10 +988,10 @@ public class ShopManager : MonoBehaviour
             clickedSlot.currentObj = null;
 
 
-            //画像データをショップから所持データへ移行する
+            //画像データをショップから所持画像データリストへ移行する
             playerScript.itemImageList.Add(catchItem);
 
-            //ポーションだけ別枠処理
+            //購入したアイテムのデータをリストへ追加（ポーションだけ別枠処理）
             if (clickedSlot.currentItem.ItemType == ItemType.Potion)
             {
                 playerScript.PotionDataAddProcess(clickedSlot.currentItem);
@@ -1171,7 +1004,7 @@ public class ShopManager : MonoBehaviour
             //お金計算
             playerScript.money -= clickedSlot.currentItem.Value;
 
-            //お金のUI変更
+            //所持金のUI変更
             UIManager.instance.ChangeMoney();
 
 
@@ -1192,6 +1025,7 @@ public class ShopManager : MonoBehaviour
             //プレイヤーのステータス更新
             playerScript.UpdatePlyaerStatus();
 
+            //購入したアイテムのオブジェクトの位置を更新
             catchItem.transform.position = catchItem.GetComponent<ItemIndividualData>().itemSetPos;
 
             //スロット内のデータを空にする
@@ -1224,6 +1058,7 @@ public class ShopManager : MonoBehaviour
         }
         else
         {
+            //アイテムが購入されなかった場合、初期位置に戻す
             catchItem.transform.position = catchItemOriginPos;
         }
     }
@@ -1235,7 +1070,7 @@ public class ShopManager : MonoBehaviour
         //一度詳細テキストをクリアする
         itemDetailText.text = string.Empty;
 
-        //クリックしたアイテムのデータへアクセス
+        //データへアクセスしてクリックしたアイテムの詳細テキストを表示
         for (int i = 0; i < itemDataBase.allItems.Count; i++)
         {
             if (itemDataBase.allItems[i].name == catchItem.name)
@@ -1246,7 +1081,7 @@ public class ShopManager : MonoBehaviour
 
     }
 
-    //売却価格表示
+    //売却価格表示関数
     private void SellItemValueText()
     {
         int addValue = 0;
@@ -1264,198 +1099,95 @@ public class ShopManager : MonoBehaviour
     }
 
 
-    //選択したアイテムのアイテムデータ取得
-    private ItemData GetItemData(GameObject item)
-    {
-        ItemData data = null;
+    //Unityのボタンから直接呼ぶためのラッパー関数
+    public void OnClickSkillUpQ() => TrySkillLevelUp(SkillType.Q);
+    public void OnClickSkillUpE() => TrySkillLevelUp(SkillType.E);
+    public void OnClickSkillUpR() => TrySkillLevelUp(SkillType.R);
+    public void OnClickSkillUpF() => TrySkillLevelUp(SkillType.F);
 
-        //クリックしたアイテムのデータへアクセス
-        for (int i = 0; i < itemDataBase.allItems.Count; i++)
+    
+    //スキルレベルアップ共通処理
+    private void TrySkillLevelUp(SkillType skillType)
+    {
+        //ショップ状態でない、またはお金が足りない場合はビープ音を鳴らして即リターン
+        if (GameManager.instance.state != GameManager.GameState.Shop || playerScript.money < skillUpValue)
         {
-            if (itemDataBase.allItems[i].name == item.name)
-            {
-                data =  itemDataBase.allItems[i];
+            soundManager.PlaySE(CommonSoundType.Beep);
+            return;
+        }
+
+        //スキルに応じたレベルアップ処理を実行
+        ExecuteSkillLevelUp(skillType);
+
+        //共通の支払処理とUI更新
+        playerScript.money -= skillUpValue;
+        UIManager.instance.ChangeMoney();
+        soundManager.PlaySE(CommonSoundType.Buy);
+
+        //対象スキルのUI表示を更新
+        UpdateSkillUI(skillType);
+    }
+
+
+    // スキルタイプに応じてPlayer側の処理を呼び出す
+    private void ExecuteSkillLevelUp(SkillType skillType)
+    {
+        //スキルの攻撃力倍率上昇
+        switch (skillType)
+        {
+            case SkillType.Q: playerScript.SkillQLevelUp(); break;
+            case SkillType.E: playerScript.SkillELevelUp(); break;
+            case SkillType.R: playerScript.SkillRLevelUp(); break;
+            case SkillType.F: playerScript.SkillFLevelUp(); break;
+        }
+    }
+
+    // スキルタイプに応じてUIテキストとボタンの状態を更新する
+    private void UpdateSkillUI(SkillType skillType)
+    {
+        //処理対象のUIと現在のレベルを特定する
+        Button targetButton = null;
+        TextMeshProUGUI targetText = null;
+        int currentLevel = 0;
+
+        //選択されたスキルタイプのボタン、スキルレベルテキスト、スキルレベル取得
+        switch (skillType)
+        {
+            case SkillType.Q:
+                targetButton = skillLevelUpButtonQ;
+                targetText = skillLevelTextQ;
+                currentLevel = playerScript.SkillLevelQ;
                 break;
-            }
+            case SkillType.E:
+                targetButton = skillLevelUpButtonE;
+                targetText = skillLevelTextE;
+                currentLevel = playerScript.SkillLevelE;
+                break;
+            case SkillType.R:
+                targetButton = skillLevelUpButtonR;
+                targetText = skillLevelTextR;
+                currentLevel = playerScript.SkillLevelR;
+                break;
+            case SkillType.F:
+                targetButton = skillLevelUpButtonF;
+                targetText = skillLevelTextF;
+                currentLevel = playerScript.SkillLevelF;
+                break;
         }
 
-        return data;
-    }
-
-
-    //スキルレベルアップボタン
-    public void SkillLevelUpButtonQ()
-    {
-        if (GameManager.instance.state == GameManager.GameState.Shop)
+        //UIの共通書き換えロジック（スキルレベルMax時）
+        if (currentLevel == playerScript.MaxSkillLevel)
         {
-            if (skillUpValue <= playerScript.money)
-            {
-                playerScript.SkillQLevelUp();
-
-                //お金計算
-                playerScript.money -= skillUpValue;
-
-                //お金のUI変更
-                UIManager.instance.ChangeMoney();
-
-                if (playerScript.SkillLevelQ == playerScript.MaxSkillLevel)
-                {
-                    skillLevelTextQ.text = "Lv.Max";
-                    skillLevelUpButtonQ.interactable = false;
-                    skillLevelUpButtonQ.GetComponentInChildren<TextMeshProUGUI>().text = "Mastered";
-                }
-                else
-                {
-                    skillLevelTextQ.text = "Lv." + playerScript.SkillLevelQ.ToString();
-                }
-
-                //購入SE
-                soundManager.PlaySE(CommonSoundType.Buy);
-
-            }
-            else
-            {
-                soundManager.PlaySE(CommonSoundType.Beep);
-            }
+            targetText.text = "Lv.Max";
+            targetButton.interactable = false;
+            targetButton.GetComponentInChildren<TextMeshProUGUI>().text = "Mastered";
         }
         else
         {
-            soundManager.PlaySE(CommonSoundType.Beep);
+            //レベル上昇時
+            targetText.text = $"Lv.{currentLevel}";
         }
-
-
-
     }
-
-    public void SkillLevelUpButtonE()
-    {
-        if (GameManager.instance.state == GameManager.GameState.Shop)
-        {
-            if (skillUpValue <= playerScript.money)
-            {
-                playerScript.SkillELevelUp();
-
-                //お金計算
-                playerScript.money -= skillUpValue;
-
-                //お金のUI変更
-                UIManager.instance.ChangeMoney();
-
-                if (playerScript.SkillLevelE == playerScript.MaxSkillLevel)
-                {
-                    skillLevelTextE.text = "Lv.Max";
-                    skillLevelUpButtonE.interactable = false;
-                    skillLevelUpButtonE.GetComponentInChildren<TextMeshProUGUI>().text = "Mastered";
-                }
-                else
-                {
-                    skillLevelTextE.text = "Lv." + playerScript.SkillLevelE.ToString();
-                }
-
-                //購入SE
-                soundManager.PlaySE(CommonSoundType.Buy);
-
-            }
-            else
-            {
-                soundManager.PlaySE(CommonSoundType.Beep);
-            }
-        }
-
-
-
-
-    }
-
-    public void SkillLevelUpButtonR()
-    {
-
-        if (GameManager.instance.state == GameManager.GameState.Shop)
-        {
-            if (skillUpValue <= playerScript.money)
-            {
-                playerScript.SkillRLevelUp();
-
-                //お金計算
-                playerScript.money -= skillUpValue;
-
-                //お金のUI変更
-                UIManager.instance.ChangeMoney();
-
-                if (playerScript.SkillLevelR == playerScript.MaxSkillLevel)
-                {
-                    skillLevelTextR.text = "Lv.Max";
-                    skillLevelUpButtonR.interactable = false;
-                    skillLevelUpButtonR.GetComponentInChildren<TextMeshProUGUI>().text = "Mastered";
-                }
-                else
-                {
-                    skillLevelTextR.text = "Lv." + playerScript.SkillLevelR.ToString();
-                }
-
-                //購入SE
-                soundManager.PlaySE(CommonSoundType.Buy);
-
-            }
-            else
-            {
-                soundManager.PlaySE(CommonSoundType.Beep);
-            }
-        }
-        else
-        {
-            soundManager.PlaySE(CommonSoundType.Beep);
-        }
-
-
-
-    }
-
-    public void SkillLevelUpButtonF()
-    {
-        if (GameManager.instance.state == GameManager.GameState.Shop)
-        {
-
-            if (skillUpValue <= playerScript.money)
-            {
-                playerScript.SkillFLevelUp();
-
-                //お金計算
-                playerScript.money -= skillUpValue;
-
-                //お金のUI変更
-                UIManager.instance.ChangeMoney();
-
-                if (playerScript.SkillLevelF == playerScript.MaxSkillLevel)
-                {
-                    skillLevelTextF.text = "Lv.Max";
-                    skillLevelUpButtonF.interactable = false;
-                    skillLevelUpButtonF.GetComponentInChildren<TextMeshProUGUI>().text = "Mastered";
-                }
-                else
-                {
-                    skillLevelTextF.text = "Lv." + playerScript.SkillLevelF.ToString();
-                }
-
-                //購入SE
-                soundManager.PlaySE(CommonSoundType.Buy);
-
-            }
-            else
-            {
-                soundManager.PlaySE(CommonSoundType.Beep);
-            }
-
-        }
-        else
-        {
-            soundManager.PlaySE(CommonSoundType.Beep);
-        }
-
-
-    }
-
-
 
 
 
