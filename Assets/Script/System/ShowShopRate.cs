@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 
 public class ShowShopRate : MonoBehaviour,IPointerEnterHandler, IPointerExitHandler
 {
+    //ショップの文字にマウスカーソルが重なった時に現在のショップのレアリティの出現レートを表示する
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -17,6 +18,7 @@ public class ShowShopRate : MonoBehaviour,IPointerEnterHandler, IPointerExitHand
         
     }
 
+    //マウスカーソルが離れたとき非表示
     public void OnPointerExit(PointerEventData eventData)
     {
         ShowShopRateManager.instance.HiddenRatePopUp();

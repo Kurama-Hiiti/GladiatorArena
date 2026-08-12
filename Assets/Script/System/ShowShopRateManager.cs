@@ -5,15 +5,19 @@ using UnityEngine;
 
 public class ShowShopRateManager : MonoBehaviour
 {
+    //ショップに陳列されるアイテムのレアリティのレート画面表示処理
+
     //シングルトン化
     public static ShowShopRateManager instance { get; private set; }
 
     [SerializeField]
     private ShopManager shopManager;
 
+    //レート表示UI
     [SerializeField]
     private GameObject popUpUI;
 
+    //レートテキスト
     [SerializeField]
     private TextMeshProUGUI commonRateText;
     [SerializeField]
@@ -39,10 +43,11 @@ public class ShowShopRateManager : MonoBehaviour
     //アイテム出現確率表示
     public void ShowRatePopUp()
     {
-        //ポップアップ表示
+        //ポップアップ表示　ポップアップ表示を要素の最後（最前）にする
         popUpUI.transform.SetAsLastSibling();
         popUpUI.SetActive(true);
 
+        //テキスト更新
         commonRateText.text = "コモン:"+ shopManager.NowRate.common + "%";
         rareRateText.text = "レア:" + shopManager.NowRate.rare + "%";
         epicRateText.text = "エピック:" + shopManager.NowRate.epic + "%";
