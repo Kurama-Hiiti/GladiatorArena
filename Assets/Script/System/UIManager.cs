@@ -98,30 +98,39 @@ public class UIManager : MonoBehaviour
     public Player SelectPlayer => selectPlayer;
 
     //装備品の装備位置
+    //武器
     [SerializeField]
     private Transform weaponPos;
 
+    //セカンダリー装備
     [SerializeField]
     private Transform secondaryPos;
 
+    //頭装備
     [SerializeField]
     private Transform helmPos;
 
+    //胴装備
     [SerializeField]
     private Transform armorPos;
 
+    //手装備
     [SerializeField]
     private Transform glovePos;
 
+    //足装備
     [SerializeField]
     private Transform shoesPos;
 
+    //ポーション
     [SerializeField]
     private Transform[] potionPos;
 
+    //アクセサリー
     [SerializeField]
     private Transform accessoryPos;
 
+    //スペアスロット
     [SerializeField]
     private Transform[] sparePos;
 
@@ -197,9 +206,11 @@ public class UIManager : MonoBehaviour
 
 
     //スキルレベルアップ用スキルアイコンオブジェクト
+    //剣士
     [SerializeField]
     private GameObject swordManSkillIcon;
 
+    //魔術師
     [SerializeField]
     private GameObject mageSkillIcon;
 
@@ -221,10 +232,9 @@ public class UIManager : MonoBehaviour
 
     }
 
-
-    // Start is called before the first frame update
     void Start()
     {
+        //表示UI初期化
         titleCanvas.SetActive(true);
         shopCanvas.SetActive(false);
         playerCanvas.SetActive(false);
@@ -233,13 +243,16 @@ public class UIManager : MonoBehaviour
         gameOverUI.SetActive(false);
         menuUI.SetActive(false);
 
-
+        //タイトルロゴ初期位置
         titleLogoInitPos = titleLogo.transform.position;
 
+        //スタートボタン初期位置
         startButtonInitPos = startButton.transform.position;
 
+        //タイトルロゴ移動先位置
         titleLogoEndPos = titleLogoInitPos + moveTitleLogoAmount;
 
+        //スタートボタン移動先位置
         startButtonEndPos = startButtonInitPos - moveButtonAmount;
 
         //プレイヤーのオブジェクト全て非表示
@@ -256,22 +269,25 @@ public class UIManager : MonoBehaviour
         {
             if (!isShowInitItem)
             {
+                //選択されているキャラクターの初期装備表示
                 InitEquipment();
             }
 
         }
 
+        //戦闘中Tabキーでメニュー表示
         if (GameManager.instance.state == GameManager.GameState.Battle && Input.GetKeyDown(KeyCode.Tab))
         {
+            //メニューステートへ変更
             GameManager.instance.state = GameState.Menu;
 
             //カメラの速度停止
             GameManager.instance.CameraStop();
 
-
             //メニューUI表示
             menuUI.SetActive(true);
 
+            //現在のWave数表示
             nowWaveText.text = "Round : " + GameManager.instance.waveNum.ToString() + " / " + GameManager.instance.maxWave.ToString();
 
             //SE
@@ -285,11 +301,13 @@ public class UIManager : MonoBehaviour
 
 
 
-    //キャンバス表示変更
+    //ゲームスタート時キャンバス表示変更(ボタン)
     public void CharactorSelect()
     {
+        //タイトルロゴを移動させる
         titleLogo.transform.DOMove(titleLogoEndPos, UIduration);
 
+        //スタートボタンを移動させた後UI変更処理実行（Title → CharactorSelect）
         startButton.transform.DOMove(startButtonEndPos, UIduration)
             .OnComplete(() => ChangeTitleToSelectCanvas());
 
@@ -301,26 +319,31 @@ public class UIManager : MonoBehaviour
     //キャンバス変更関数
     private void ChangeTitleToSelectCanvas()
     {
+        //タイトルUI非表示
         titleCanvas.SetActive(false);
+        //ショップUI表示
         shopCanvas.SetActive(true);
 
         //プレイヤー表示
         playerArray[0].SetActive(true);
 
+        //タイトルロゴとスタートボタンの位置初期化
         titleLogo.transform.position = titleLogoInitPos;
         startButton.transform.position = startButtonInitPos;
 
+        //ステート変更
         GameManager.instance.state = GameManager.GameState.CharactorSelect;
 
         //BGM変更
         BGMManager.instance.PlayBGM(BGM.shop);
     }
 
-    //プレイヤー決定関数
+    //プレイヤー決定関数（ボタン）
     public void PlayerSelect()
     {
         for (int i = 0; i < playerArray.Length; i++)
         {
+            //現在表示されているキャラクターをPlayerへ設定する
             if (playerArray[i].activeSelf)
             {
                 GameManager.instance.player = playerArray[i];
@@ -330,9 +353,7 @@ public class UIManager : MonoBehaviour
         //ボタンSE
         soundManager.PlaySE(CommonSoundType.NextButton);
 
-        //GameManager.instance.state = GameManager.GameState.Shop;
-
-        //ショップフレーム表示
+        //ショップフレーム表示の後ステート変更
         shopFrame.transform.DOMove(shopFramePos.transform.position, UIduration)
             .OnComplete(() => GameManager.instance.state = GameManager.GameState.Shop);
 
@@ -445,6 +466,7 @@ public class UIManager : MonoBehaviour
             }
         }
 
+        //初期所持金表示
         moneyText.text = selectPlayer.data.FirstMoney.ToString();
 
         isShowInitItem = true;
@@ -479,24 +501,31 @@ public class UIManager : MonoBehaviour
     //ジョブセレクト右ボタン(ボタンに設定)
     public void NextJobSelectButton()
     {
+        //表示されている初期装備を削除
         for (int i = 0; i < initItemList.Count; i++)
         {
             Destroy(initItemList[i].gameObject);
         }
 
+        //初期装備リストを初期化
         initItemList.Clear();
 
+        //現在表示されているキャラクターを非表示
         playerArray[nowSlectJobNum].SetActive(false);
 
+        //ジョブの表示番号加算
         nowSlectJobNum++;
 
+        //キャラクターのリスト以上の数字になった場合初期化（右ボタンを押しているとループするようにする）
         if (playerArray.Length - 1 < nowSlectJobNum)
         {
             nowSlectJobNum = 0;
         }
 
+        //プレイヤー表示
         playerArray[nowSlectJobNum].SetActive(true);
 
+        //初期装備表示フラグ更新
         isShowInitItem = false;
 
         //SE
@@ -534,8 +563,10 @@ public class UIManager : MonoBehaviour
     }
 
 
+    //バトル勝利時のUI表示関数
     public void ShowClearUI()
     {
+        //最終Wave数の場合の処理
         if (GameManager.instance.maxWave <= GameManager.instance.waveNum)
         {
             //ゲームクリアUI
@@ -557,7 +588,6 @@ public class UIManager : MonoBehaviour
         }
 
 
-
         //プレイヤーのアニメーションリセット（idol状態へ遷移）
         GameManager.instance.player.GetComponent<Player>().AnimationReset();
 
@@ -565,7 +595,7 @@ public class UIManager : MonoBehaviour
 
     }
 
-    //ゲームオーバーUI表示
+    //ゲームオーバーUI表示関数
     public void ShowGameOverUI()
     {
         gameOverUI.SetActive(true);
@@ -577,6 +607,8 @@ public class UIManager : MonoBehaviour
         BGMManager.instance.PlayBGM(BGM.gameOver);
     }
 
+
+    //バトル勝利時ショップへ遷移する関数(ボタン)
     public void GoShopButton()
     {
         //表示中のUI非表示
@@ -598,9 +630,10 @@ public class UIManager : MonoBehaviour
         //プレイヤーの移動
         GameManager.instance.PlayerWarpBattleFieldToShop();
 
-        //お金を取得 21～34 (Max 15Wave)
+        //お金を取得 21～29
         GameManager.instance.player.GetComponent<Player>().money += (19 + GameManager.instance.waveNum);
 
+        //所持金更新
         ChangeMoney();
 
         //クリア時の回復
@@ -618,102 +651,121 @@ public class UIManager : MonoBehaviour
     }
 
 
-    //ステータス画面表示関数（ボタンにセットする）
+    //ステータス画面表示関数（ボタン）
     public void ShowPlayerStatusUI()
     {
+        //UI表示
         playerStatusUI.SetActive(true);
-        //表示更新関数を実施
+
+        //表示内容更新関数を実施
         statusUI.StatusUIUpdate();
 
         //SE
         soundManager.PlaySE(CommonSoundType.NormalButton);
 
+        //ショップアイテムおよび装備クリック不可
         GameManager.instance.isClick = false;
 
     }
 
-    //ステータス画面を非表示にする関数（ボタンにセットする）
+    //ステータス画面を非表示にする関数（ボタン）
     public void HiddenPlayerStatusUI()
     {
+        //非表示
         playerStatusUI.SetActive(false);
 
         //SE
         soundManager.PlaySE(CommonSoundType.NormalButton);
 
+        //クリック可能
         GameManager.instance.isClick = true;
     }
 
-    //メニューUI非表示
+    //メニューUI非表示(ボタン)
     public void HiddenMenuUI()
     {
-
+        //UI非表示
         menuUI.SetActive(false);
 
+        //ステート変更
         GameManager.instance.state = GameState.Battle;
 
         //SE
         soundManager.PlaySE(CommonSoundType.NormalButton);
 
+        //タイムスケール初期化
         Time.timeScale = 1.0f;
 
+        //カメラ移動可能化
         GameManager.instance.CameraMove();
 
     }
 
 
-    //警告キャンバス表示
+    //警告キャンバス表示(ボタン)　ゲームの途中終了についての警告
     public void ShowCautionCanvas()
     {
+        //UI表示
         cautionCanvas.SetActive(true);
         //SE
         soundManager.PlaySE(CommonSoundType.NormalButton);
 
+        //ショップアイテムおよび装備クリック不可
         GameManager.instance.isClick = false;
     }
 
     //警告キャンバス非表示
     public void HiddenCautionCanvas()
     {
+        //非表示
         cautionCanvas.SetActive(false);
 
         //SE
         soundManager.PlaySE(CommonSoundType.NormalButton);
 
+        //クリック可能化
         GameManager.instance.isClick = true;
 
     }
 
-    //アイテムリスト表示ボタン
+    //アイテムリスト表示(ボタン)
     public void ShowItemList()
     {
+        //アイテムリスト表示前のステート格納
         beforeState = GameManager.instance.state;
 
+        //UI表示
         itemListCanvas.SetActive(true);
 
+        //ショップアイテムおよび装備クリック不可
         GameManager.instance.isClick = false;
 
         //SE
         soundManager.PlaySE(CommonSoundType.NormalButton);
 
+        //ステート変更
         GameManager.instance.state = GameState.ItemListMenu;
 
     }
 
-    //アイテムリスト非表示ボタン
+    //アイテムリスト非表示(ボタン)
     public void HiddenItemList()
     {
+        //非表示
         itemListCanvas.SetActive(false);
-
+        
+        //クリック可能化
         GameManager.instance.isClick = true;
 
         //SE
         soundManager.PlaySE(CommonSoundType.NormalButton);
 
+        //ステート変更
         GameManager.instance.state = beforeState;
     }
 
 
-    //ゲーム終了ボタン
+    //ゲーム終了(ボタン)
     public void GameEndButton()
     {
 
