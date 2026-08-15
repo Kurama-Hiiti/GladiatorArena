@@ -22,7 +22,7 @@ public class EnemySpawnManager : MonoBehaviour
 
 
 
-    //敵のスポーン数
+    //敵のスポーン数(敵の配分は予め設定)
     private List<EnemySpqwnNum> enemySpawnNum = new()
     {
         new EnemySpqwnNum { zombie = 10, highZombie = 0, mutant = 0, minotaur = 0, beetle = 0, golem = 0 },
@@ -47,11 +47,6 @@ public class EnemySpawnManager : MonoBehaviour
     private bool isEnemySpawn = false;
 
 
-    //テスト用スポーン
-    private void Start()
-    {
-
-    }
 
     private void Update()
     {
@@ -76,10 +71,13 @@ public class EnemySpawnManager : MonoBehaviour
         //ゾンビスポーン
         for (int i = 0; i < spawnNum.zombie; i++)
         {
+            //敵の出現
             GameObject enemy = Instantiate(enemyList[0], new Vector3(SpawnEnemyPositonX(), 0.1f, SpawnEnemyPositonZ()), Quaternion.identity);
 
+            //このスクリプトがアタッチされているオブジェクトの子要素に設定
             enemy.transform.parent = transform;
 
+            //リストに追加
             spawnList.Add(enemy);
 
         }
@@ -142,6 +140,8 @@ public class EnemySpawnManager : MonoBehaviour
     }
 
 
+    //敵の出現位置はフィールド中央を中心とした一辺50の正方形の範囲内に出現するようにする
+
     //敵のスポーン位置計算関数
     private float SpawnEnemyPositonX()
     {
@@ -165,6 +165,7 @@ public class EnemySpawnManager : MonoBehaviour
     {
         if (spawnList.Count != 0)
         {
+            //敵が倒された時にリストから除外
             for (int i = 0; i < spawnList.Count; i++)
             {
                 GameObject obj = spawnList[i];
@@ -175,13 +176,16 @@ public class EnemySpawnManager : MonoBehaviour
 
             }
 
+            //敵がいなくなった時クリア判定
             if (spawnList.Count == 0)
             {
+                //ステート変更
                 GameManager.instance.state = GameManager.GameState.GameClear;
 
+                //クリアUI表示
                 UIManager.instance.ShowClearUI();
 
-                //もう一度敵が現れるようにする
+                //次のWaveのためにもう一度敵が現れるようにする
                 isEnemySpawn = false;
             }
         }
@@ -189,6 +193,7 @@ public class EnemySpawnManager : MonoBehaviour
 
     }
 
+    //現在のWave数に応じた敵の数を取得する
     private EnemySpqwnNum GetSpawnNum(int waveNum)
     {
         if (enemySpawnNum.Count <= waveNum - 1)
