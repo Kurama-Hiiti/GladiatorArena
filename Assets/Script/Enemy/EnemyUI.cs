@@ -26,17 +26,21 @@ public class EnemyUI : MonoBehaviour
 
     private void Start()
     {
+        //HPの値の変更を読取り処理を実行する
         enemyHp
             .ObserveEveryValueChanged(hp => enemyHp.Value = enemy.currentHealth)
             .Subscribe(hp => EnemyHpUIManagement(hp));
     }
 
 
+    //HPバーの状態遷移処理
     private void EnemyHpUIManagement(int hp)
     {
 
+        //HP計算
         float targetValue = (float)hp / (float)enemy.maxHealth;
 
+        //HPバー遷移
         hpBar.DOFillAmount(targetValue, barDuration);
 
     }
