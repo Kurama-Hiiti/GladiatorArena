@@ -261,10 +261,6 @@ public class EnemyManager : MonoBehaviour
 
     }
 
-    //
-    //‚±‚±‚©‚ç
-    //
-
 
     private void Update()
     {
