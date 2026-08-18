@@ -28,6 +28,8 @@ public class ItemIndividualData : MonoBehaviour
 
     private void Start()
     {
+
+        //アイテムのタイプを取得
         foreach (ItemData list in itemDataBase.allItems)
         {
             if (this.name == list.name)
@@ -36,8 +38,8 @@ public class ItemIndividualData : MonoBehaviour
             }
         }
 
+        //初期位置設定
         itemSetPos = transform.position;
-
         originPos = transform.position;
     }
 
@@ -49,10 +51,16 @@ public class ItemIndividualData : MonoBehaviour
             //スペアフレーム
             if (collision.gameObject.CompareTag("SpareFrame"))
             {
+                //フレームにセットされているアイテムが無い時
                 if (!collision.gameObject.GetComponent<FrameItemCheck>().isSet)
                 {
+                    //位置更新
                     itemSetPos = collision.transform.position;
+
+                    //スペアアイテムフラグ更新
                     isSpare = true;
+
+                    //スロットのセットフラグ更新
                     collision.gameObject.GetComponent<FrameItemCheck>().isSet = true;
                 }
 
@@ -61,6 +69,7 @@ public class ItemIndividualData : MonoBehaviour
             //武器フレーム
             else if (collision.gameObject.CompareTag("WeaponFrame") && type == ItemType.Weapon)
             {
+                
                 if (!collision.gameObject.GetComponent<FrameItemCheck>().isSet)
                 {
                     itemSetPos = collision.transform.position;
@@ -154,11 +163,13 @@ public class ItemIndividualData : MonoBehaviour
 
     }
 
+    //フレームから外れた時
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (GameManager.instance.state == GameManager.GameState.Shop)
         {
             //スペアフレーム
+            //購入していないアイテムをフレームに入れてから購入するのをやめてフレームから外したときに元の商品陳列位置に戻す
             if (collision.gameObject.CompareTag("SpareFrame") && !IsHaveItem())
             {
                 itemSetPos = originPos;
@@ -221,10 +232,6 @@ public class ItemIndividualData : MonoBehaviour
                 itemSetPos = originPos;
                 isSpare = false;
             }
-
-
-
-
 
 
             if (collision.gameObject.CompareTag("SellSpace"))
