@@ -25,11 +25,11 @@ public class EnemyManager : MonoBehaviour
 
     //体力
     [SerializeField]
-    private int baseHealth;
+    private int baseHealth;//基礎体力
 
-    public int maxHealth;
+    public int maxHealth;//最大体力
 
-    public int currentHealth;
+    public int currentHealth;//現在の体力
 
     //基礎攻撃力
     [SerializeField]
@@ -76,8 +76,8 @@ public class EnemyManager : MonoBehaviour
 
 
     //列挙型のEnemyの状態作成
-    private enum STATE { Idol, Caution, Attack, SkillAttack, Chase, Damage, Dead , Paralyze};
-    private STATE state = STATE.Idol;
+    private enum STATE { Idle, Caution, Attack, SkillAttack, Chase, Damage, Dead , Paralyze};
+    private STATE state = STATE.Idle;
 
     //攻撃対象（プレイヤー）
     private GameObject target;
@@ -85,7 +85,7 @@ public class EnemyManager : MonoBehaviour
     //攻撃対象のスクリプト
     private Player targetScript;
 
-    //各ステータスの成長補正値
+    //各ステータスの成長補正値(Waveが進むにつれて強化される)
     [SerializeField]
     private float healthGrowth;
 
@@ -109,7 +109,7 @@ public class EnemyManager : MonoBehaviour
     [SerializeField]
     private GameObject hpUI;
 
-    //UI表示時間
+    //UI表示時間(敵のHPバーに変化が無い場合は一定時間後に非表示になる)
     [SerializeField]
     private float showUITime;
 
@@ -189,10 +189,19 @@ public class EnemyManager : MonoBehaviour
     private GameObject poisonEffect;
 
 
+    //プレイヤーを発見する距離
+    private int detectDistance = 30;
+
+    //プレイヤーを見失う距離
+    private int lostDistance = 35;
+
+    //スキル発動確率
+    private int skillRate = 30;
+
 
     private void Start()
     {
-        //ステータス
+        //ステータス決定
         EnemyStatus();
 
         //ヒットまでの時間
@@ -208,6 +217,7 @@ public class EnemyManager : MonoBehaviour
         animator = GetComponent<Animator>();
 
 
+        //攻撃用コライダー非表示
         hitCollider.enabled = false;
 
         if (hitCollider2 != null)
@@ -223,6 +233,7 @@ public class EnemyManager : MonoBehaviour
 
         isDead = false;
 
+        //ターゲット（プレイヤー）の設定
         if (target == null)
         {
             target = GameObject.FindWithTag("Player");
@@ -230,7 +241,7 @@ public class EnemyManager : MonoBehaviour
             targetScript = target.GetComponent<Player>();
         }
 
-
+        //自身のコライダー設定
         boxCollider = GetComponent<BoxCollider>();
 
         hpUI.SetActive(false);
@@ -249,6 +260,11 @@ public class EnemyManager : MonoBehaviour
         poisonEffect.SetActive(false);
 
     }
+
+    //
+    //ここから
+    //
+
 
     private void Update()
     {
@@ -300,9 +316,10 @@ public class EnemyManager : MonoBehaviour
                     hpUI.SetActive(true);
                 }
 
+                //UIをプレイヤーの方向に向ける
                 hpUI.transform.LookAt(targetScript.cam.position);
-
                 hpUI.transform.rotation = UIRotation();
+
 
                 showUITimer -= Time.deltaTime;
 
@@ -315,11 +332,12 @@ public class EnemyManager : MonoBehaviour
                 }
             }
 
-
+            //敵の状態管理
             EnemyStateController();
         }
         else if (GameManager.instance.state == GameState.GameOver)
         {
+            //敵の状態管理
             EnemyStateController();
 
             //HPUI非表示
@@ -347,27 +365,33 @@ public class EnemyManager : MonoBehaviour
         return hpUIRotation;
     }
 
+    //敵の状態管理関数
     private void EnemyStateController()
     {
-
+        //状態によって処理を実行する
         switch (state)
         {
-            case STATE.Idol:
+            //停止状態
+            case STATE.Idle:
 
-
+                //アニメーターのフラグリセット
                 AnimatorBoolReset();
 
+                //プレイヤーを発見した場合追いかける
                 if (CanSeePlayer())
                 {
+                    //追跡状態へ移行
                     state = STATE.Chase;
                 }
-                else if (Random.Range(0, 10) < 5)
+                else if (Random.Range(0, 10) < 5) //敵を発見していない場合は確率で警戒状態へ
                 {
+                    //警戒状態へ移行
                     state = STATE.Caution;
                 }
 
                 break;
 
+            //警戒状態
             case STATE.Caution:
 
                 //攻撃フラグが立った時は攻撃を最後まで実行する
@@ -394,13 +418,14 @@ public class EnemyManager : MonoBehaviour
 
                 }
 
-                //一定の割合で移動中でも一定の確率でIdol状態へ戻る（その場で留まる）
+                //一定の割合で移動中でも一定の確率でIdle状態へ戻る（その場で留まる）
                 if (Random.Range(0, 500) < 5)
                 {
-                    state = STATE.Idol;
+                    state = STATE.Idle;
                     agent.ResetPath();
                 }
 
+                //プレイヤーを発見した時は追跡
                 if (CanSeePlayer())
                 {
                     state = STATE.Chase;
@@ -408,11 +433,13 @@ public class EnemyManager : MonoBehaviour
 
                 break;
 
+            //追跡状態
             case STATE.Chase:
 
                 //攻撃フラグが立った時は攻撃を最後まで実行する
                 if (isAttacking) return;
 
+                //ゲームオーバー時は追跡を解除
                 if (GameManager.instance.state == GameState.GameOver)
                 {
                     AnimatorBoolReset();
@@ -458,8 +485,10 @@ public class EnemyManager : MonoBehaviour
 
                 break;
 
+            //攻撃状態
             case STATE.Attack:
 
+                //ゲームオーバー時は攻撃を解除
                 if (GameManager.instance.state == GameState.GameOver)
                 {
                     AnimatorBoolReset();
@@ -476,6 +505,7 @@ public class EnemyManager : MonoBehaviour
                 animator.SetBool("Attack", true);
                 transform.LookAt(new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z));
 
+                //プレイヤーと距離が一定以上離れた場合は追跡状態へ移行
                 if (DistanceToPlayer() > agent.stoppingDistance + 2)
                 {
                     state = STATE.Chase;
@@ -484,8 +514,10 @@ public class EnemyManager : MonoBehaviour
 
                 break;
 
+            //スキル攻撃（強攻撃）
             case STATE.SkillAttack:
 
+                //ゲームオーバー時は攻撃を解除
                 if (GameManager.instance.state == GameState.GameOver)
                 {
                     AnimatorBoolReset();
@@ -502,6 +534,7 @@ public class EnemyManager : MonoBehaviour
                 animator.SetBool("SkillAttack", true);
                 transform.LookAt(new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z));
 
+                //プレイヤーと距離が一定以上離れた場合は追跡状態へ移行
                 if (DistanceToPlayer() > agent.stoppingDistance + 1)
                 {
                     state = STATE.Chase;
@@ -509,8 +542,10 @@ public class EnemyManager : MonoBehaviour
 
                 break;
 
+            //被ダメージ状態
             case STATE.Damage:
 
+                //動きを止めてヒットモーション
                 AnimatorBoolReset();
                 animator.SetTrigger("TakeDamage");
                 agent.ResetPath();
@@ -529,17 +564,20 @@ public class EnemyManager : MonoBehaviour
                 }
                 else
                 {
-                    state = STATE.Idol;
+                    state = STATE.Idle;
                 }
 
                 break;
 
+            //死亡状態
             case STATE.Dead:
 
+                //死亡モーショントリガ―
                 animator.SetTrigger("Death");
  
                 if (!isDead)
                 {
+                    //死亡状態フラグ更新
                     isDead = true;
                     //ヒットボックスコライダーを消す
                     boxCollider.enabled = false;
@@ -564,7 +602,10 @@ public class EnemyManager : MonoBehaviour
 
                 break;
 
+            //感電状態
             case STATE.Paralyze:
+
+                //その場で停止
                 AnimatorBoolReset();
                 agent.ResetPath();
 
@@ -607,7 +648,7 @@ public class EnemyManager : MonoBehaviour
     //敵がプレイヤーを発見するかどうか判定する関数
     private bool CanSeePlayer()
     {
-        if (DistanceToPlayer() < 30)
+        if (DistanceToPlayer() < detectDistance)
         {
             return true;
         }
@@ -618,7 +659,7 @@ public class EnemyManager : MonoBehaviour
     //プレイヤーを見失う条件を決める関数
     private bool ForGetPlayer()
     {
-        if (DistanceToPlayer() > 35)
+        if (DistanceToPlayer() > lostDistance)
         {
             return true;
         }
@@ -631,7 +672,7 @@ public class EnemyManager : MonoBehaviour
     private void AttackCheck()
     {
         //30%の確率でスキル発動
-        if (Random.Range(0, 100) > 30)
+        if (Random.Range(0, 100) > skillRate)
         {
             state = STATE.Attack;
         }
@@ -660,21 +701,26 @@ public class EnemyManager : MonoBehaviour
 
 
     //通常攻撃判定用コライダー制御関数（アニメーションで呼び出す）
+
+    //攻撃コライダー表示
     public void ShowAttackCollider()
     {
         hitCollider.enabled = true;
     }
 
+    //攻撃コライダー非表示
     public void HiddenAttackCollider()
     {
         hitCollider.enabled = false;
     }
 
+    //攻撃コライダー2表示（種類によって二つ持つ）
     public void ShowAttackCollider2()
     {
         hitCollider2.enabled = true;
     }
 
+    //攻撃コライダー2非表示
     public void HiddenAttackCollider2()
     {
         hitCollider2.enabled = false;
@@ -682,11 +728,14 @@ public class EnemyManager : MonoBehaviour
 
 
     //強攻撃（スキル）判定用コライダー制御関数（アニメーションで呼び出す）
+
+    //スキル用コライダー表示
     public void ShowSkillAttackCollider()
     {
         skillHitCollider.enabled = true;
     }
 
+    //スキル用コライダー非表示
     public void HiddenSkillAttackCollider()
     {
         skillHitCollider.enabled = false;
@@ -712,15 +761,20 @@ public class EnemyManager : MonoBehaviour
 
 
 
-    //ステータス管理関数
+    //ステータス設定関数
     private void EnemyStatus()
     {
+        //最大体力
         maxHealth = (int)(baseHealth + GameManager.instance.waveNum * healthGrowth);
+        //攻撃力
         enemyAttackPower = (int)(enemyBaseAttackPower + GameManager.instance.waveNum * attackGrowth);
+        //防御力
         enemyDefensePower = (int)(enemyBaseDefensePower + GameManager.instance.waveNum * defenseGrowth);
 
+        //敵のステータスにばらつきを持たせる
         float randFactor = Random.Range(0.9f,1.2f);
 
+        //乱数を適応した最終的なステータス
         maxHealth = (int)(maxHealth * randFactor);
         enemyAttackPower = (int)(enemyAttackPower * randFactor);
         enemyDefensePower = (int)(enemyDefensePower * randFactor);
@@ -749,7 +803,7 @@ public class EnemyManager : MonoBehaviour
         if (!isDead)
         {
             agent.isStopped = false;
-            state = STATE.Idol;
+            state = STATE.Idle;
         }
         
         
@@ -761,6 +815,7 @@ public class EnemyManager : MonoBehaviour
 
         if (!isHit)
         {
+            //武器で攻撃された時の処理
             if (other.CompareTag("Weapon") && currentHealth > 0)
             {
                 //HPバーの表示時間リセット
@@ -808,7 +863,7 @@ public class EnemyManager : MonoBehaviour
                     HitMotionProcess();
                 }
 
-                //クリティカルヒット時ピッチを変更
+                //クリティカルヒット時SEのピッチを変更
                 if (result.isCritical)
                 {
                     enemySoundManager.audioSource.volume = 0.5f;
@@ -830,6 +885,7 @@ public class EnemyManager : MonoBehaviour
                 enemySoundManager.PlaySE(EnemySoundType.hitSword);
             }
 
+            //盾で攻撃された時
             if (other.CompareTag("Shield") && currentHealth > 0)
             {
                 //HPバーの表示時間リセット
@@ -877,7 +933,7 @@ public class EnemyManager : MonoBehaviour
 
                 KnockBack();
 
-                //クリティカルヒット時ピッチを変更
+                //クリティカルヒット時SEのピッチを変更
                 if (result.isCritical)
                 {
                     enemySoundManager.audioSource.volume = 0.5f;
@@ -899,6 +955,7 @@ public class EnemyManager : MonoBehaviour
                 enemySoundManager.PlaySE(EnemySoundType.hitShield);
             }
 
+            //魔法で攻撃された時
             if (other.CompareTag("Magic") && currentHealth > 0)
             {
                 //HPバーの表示時間リセット
@@ -946,7 +1003,7 @@ public class EnemyManager : MonoBehaviour
                     HitMotionProcess();
                 }
 
-                //クリティカルヒット時ピッチを変更
+                //クリティカルヒット時SEのピッチを変更
                 if (result.isCritical)
                 {
                     enemySoundManager.audioSource.volume = 0.5f;
@@ -970,6 +1027,7 @@ public class EnemyManager : MonoBehaviour
 
             }
 
+            //メイジのスキルQで攻撃を受けた時
             if (other.CompareTag("MageSkillQ") && currentHealth > 0)
             {
                 //HPバーの表示時間リセット
@@ -1014,7 +1072,7 @@ public class EnemyManager : MonoBehaviour
                     state = STATE.Damage;
                 }
 
-                //クリティカルヒット時ピッチを変更
+                //クリティカルヒット時ヒットストップ変化
                 if (result.isCritical)
                 {
                     //ヒットストップ
@@ -1035,6 +1093,7 @@ public class EnemyManager : MonoBehaviour
 
             }
 
+            //メイジのスキルEで攻撃を受けた時
             if (other.CompareTag("MageSkillE") && currentHealth > 0)
             {
                 //HPバーの表示時間リセット
@@ -1072,7 +1131,7 @@ public class EnemyManager : MonoBehaviour
                     state = STATE.Damage;
                 }
 
-                //クリティカルヒット時ピッチを変更
+                //クリティカルヒット時ヒットストップ変化
                 if (result.isCritical)
                 {
                     //ヒットストップ
@@ -1094,7 +1153,7 @@ public class EnemyManager : MonoBehaviour
 
             }
 
-
+            //メイジのスキルRで攻撃を受けた時
             if (other.CompareTag("MageSkillR") && currentHealth > 0)
             {
                 //HPバーの表示時間リセット
@@ -1135,7 +1194,7 @@ public class EnemyManager : MonoBehaviour
                     state = STATE.Damage;
                 }
 
-                //クリティカルヒット時ピッチを変更
+                //クリティカルヒット時SEのピッチを変更
                 if (result.isCritical)
                 {
                     enemySoundManager.audioSource.volume = 0.5f;
@@ -1157,6 +1216,7 @@ public class EnemyManager : MonoBehaviour
 
             }
 
+            //メイジのスキルFで攻撃を受けた時
             if (other.CompareTag("MageSkillF") && currentHealth > 0)
             {
                 //HPバーの表示時間リセット
@@ -1195,7 +1255,7 @@ public class EnemyManager : MonoBehaviour
                 {
                     state = STATE.Damage;
                 }
-                //クリティカルヒット時ピッチを変更
+                //クリティカルヒット時SEのピッチを変更
                 if (result.isCritical)
                 {
                     enemySoundManager.audioSource.volume = 0.5f;
@@ -1222,6 +1282,8 @@ public class EnemyManager : MonoBehaviour
         }
     }
 
+
+    //ヒットモーション（のけぞり）確率処理
     private void HitMotionProcess()
     {
         float rate = Random.Range(0, 100);
@@ -1354,7 +1416,7 @@ public class EnemyManager : MonoBehaviour
             {
                 isParalyzing = false;
 
-                state = STATE.Idol;
+                state = STATE.Idle;
             }
             else
             {
@@ -1403,7 +1465,7 @@ public class EnemyManager : MonoBehaviour
 
     }
 
-    //エフェクトの処理
+    //状態異常エフェクトの処理
     private void StatusAbnormalityEffect()
     {
         if (isFlameDamage && !flameEffect.activeSelf)
@@ -1444,6 +1506,7 @@ public class EnemyManager : MonoBehaviour
         }
     }
 
+    //攻撃を受けた時は移動が止まるので再び動かす関数（アニメーションで呼び出す）
     public void EnemyMove()
     {
         agent.isStopped = false;

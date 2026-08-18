@@ -105,7 +105,7 @@ public class Player : MonoBehaviour
     //走行中フラグ
     //protected private bool isRunning;
 
-    //idol状態フラグ
+    //idle状態フラグ
     //protected private bool isIdle;
 
     //アニメーションの状態格納
@@ -844,7 +844,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    //アニメーションのリセット(クリアしてショップへ戻る際にidol状態へ遷移する)
+    //アニメーションのリセット(クリアしてショップへ戻る際にidle状態へ遷移する)
     public void AnimationReset()
     {
         //全てのブール値をfalseにする
@@ -855,7 +855,7 @@ public class Player : MonoBehaviour
 
         DodgeFlagChange();
 
-        //idol状態
+        //idle状態
         animator.Play("Idle");
 
         

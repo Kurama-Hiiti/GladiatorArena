@@ -588,7 +588,7 @@ public class UIManager : MonoBehaviour
         }
 
 
-        //プレイヤーのアニメーションリセット（idol状態へ遷移）
+        //プレイヤーのアニメーションリセット（idle状態へ遷移）
         GameManager.instance.player.GetComponent<Player>().AnimationReset();
 
 
