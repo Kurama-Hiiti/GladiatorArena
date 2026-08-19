@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+//それぞれのSoundManagerの親スクリプト
 public class MastarSoundManager<T> : MonoBehaviour where T : System.Enum
 {
 
@@ -14,7 +16,7 @@ public class MastarSoundManager<T> : MonoBehaviour where T : System.Enum
     [SerializeField]
     private AudioClip[] bgm; 
 
-    //SE用
+    //SE用オーディオ
     public AudioSource audioSource;
 
 
@@ -24,11 +26,13 @@ public class MastarSoundManager<T> : MonoBehaviour where T : System.Enum
     }
 
 
-    //音を鳴らす関数
+    //SE用関数
     public void PlaySE(T type)
     {
+        //SEの名称(enum)をint（番号）へ変換
         int index = System.Convert.ToInt32(type);
 
+        //指定したSEを番号で決定する
         if (index >= 0 && index < se.Length)
         {
             audioSource.PlayOneShot(se[index]);
@@ -38,19 +42,21 @@ public class MastarSoundManager<T> : MonoBehaviour where T : System.Enum
 
 
     //BGM用関数
-    //音を鳴らす関数
     public void PlayBGM(T type)
     {
+        //BGMの名称(enum)をint（番号）へ変換
         int index = System.Convert.ToInt32(type);
 
+        //指定したBGMを番号で決定する
         if (index >= 0 && index < bgm.Length)
         {
             if (audioSource.isPlaying && audioSource.clip == bgm[index])
             {
-                //同じ音源の場合は何もしない
+                //再生する音源が同じ場合は何もしない
                 return;
             }
 
+            //音源停止→新たにBGM設定→再生
             audioSource.Stop();
             audioSource.clip = bgm[index];
             audioSource.Play();
