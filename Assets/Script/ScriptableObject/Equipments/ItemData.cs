@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//アイテムのタイプ
 public enum ItemType
 {
     Weapon, Armor, Secondary, Helm, Glove, Boots,
@@ -10,11 +11,13 @@ public enum ItemType
 }
 
 
+//アイテムのレアリティ
 public enum ItemRarity
 {
     Common, Rare, Epic, Legendary, Unique, None
 }
 
+//アイテムを使用できるジョブタイプ
 public enum JobType
 {
     None, Normal,SwordMan, Mage,
