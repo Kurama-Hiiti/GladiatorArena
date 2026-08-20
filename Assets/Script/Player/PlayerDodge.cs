@@ -19,9 +19,12 @@ public class PlayerDodge
         if (Input.GetKeyDown(KeyCode.LeftShift) && !isDodge && costSp <= currentSp)
         {
 
+            //回避行動（アニメーション）
             anim.SetTrigger("Dodge");
+            //回避フラグ
             isDodge = true;
 
+            //走っている状態フラグ更新
             anim.SetBool("Run", false);
 
             //SP消費する
