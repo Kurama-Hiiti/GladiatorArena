@@ -25,6 +25,7 @@ public class HitStopManager : MonoBehaviour
         StartCoroutine(DoStop(duration));
     }
 
+    //ヒットストップ処理
     IEnumerator DoStop(float duration)
     {
         Time.timeScale = 0.05f; // 完全に0にすると不自然な場合があるため、わずかに動かす
