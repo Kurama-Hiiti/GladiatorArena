@@ -8,7 +8,10 @@ public class DamageEffect : MonoBehaviour
 {
     public static DamageEffect instance { get; private set; }
 
-    public PostProcessVolume volume; // インスペクターでPost-process Volumeをアタッチ
+    // インスペクターでPost-process Volumeをアタッチ
+    public PostProcessVolume volume; 
+
+    //画面の淵の色を変化させる効果
     private Vignette vignette;
 
     private void Awake()
@@ -40,13 +43,18 @@ public class DamageEffect : MonoBehaviour
         StartCoroutine(FlashRed());
     }
 
+    //ダメージを受けたとき画面の淵を赤くする
     IEnumerator FlashRed()
     {
         // 淵を赤くする
         vignette.intensity.value = 0.45f;
 
+        //色の変化時間
         float duration = 0.5f;
+
+        //経過時間
         float elapsed = 0f;
+
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
