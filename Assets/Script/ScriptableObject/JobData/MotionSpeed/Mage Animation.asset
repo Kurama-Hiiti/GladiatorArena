@@ -16,7 +16,7 @@ MonoBehaviour:
   - animationName: NormalAttack1
     baseSpeed: 1
   - animationName: NormalAttack2
-    baseSpeed: -1.1
+    baseSpeed: 1.1
   - animationName: NormalAttack3
     baseSpeed: 1.3
   - animationName: SkillQ

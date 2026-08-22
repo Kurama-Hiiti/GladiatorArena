@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using UnityEngine;
 
 public class PlayerMove
@@ -33,9 +34,6 @@ public class PlayerMove
         {
             //走る（アニメーション）
             anim.SetBool("Run", true);
-
-            //走りのアニメーションの速度更新
-            playerScript.UpdateAnimationSpeed("RunForward");
 
             // キャラの向きを移動方向に揃える
             my.rotation = Quaternion.LookRotation(moveDir);
